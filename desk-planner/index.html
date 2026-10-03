@@ -1,0 +1,569 @@
+<title>Desk Planner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-step-at-a-time wizard — stepper on top, a single focused stage below */
+:root{
+  --paper:#f3f4f1; --sheet:#fbfbf9; --ink:#1d2a33; --muted:#66747c; --grid:#e3e7e4; --rule:#cfd5d2;
+  --desk:#2f6f8f; --desk-fill:#d6e6ee; --chair:#8a9aa3;
+  --ok:#2e7d4f; --ok-bg:#dcefe3; --bad:#b03a2e; --bad-bg:#f5dcd8; --warn:#a8650f; --warn-bg:#f6e8d2; --hatch:#bcc4c0;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#12181c; --sheet:#1a232a; --ink:#e3e9ec; --muted:#93a2aa; --grid:#243037; --rule:#34434c;
+  --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#7d909a;
+  --ok:#6cc595; --ok-bg:#16301f; --bad:#ef7b6e; --bad-bg:#3a1a16; --warn:#e0a24f; --warn-bg:#33270f; --hatch:#3c4a52; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12181c; --sheet:#1a232a; --ink:#e3e9ec; --muted:#93a2aa; --grid:#243037; --rule:#34434c;
+  --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#7d909a;
+  --ok:#6cc595; --ok-bg:#16301f; --bad:#ef7b6e; --bad-bg:#3a1a16; --warn:#e0a24f; --warn-bg:#33270f; --hatch:#3c4a52; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.4}
+.wrap{max-width:1000px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:20px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--desk);outline-offset:2px}
+
+/* stepper */
+.steps{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 10px;border-radius:999px;font-family:var(--f-display);font-weight:600;font-size:17px;letter-spacing:.03em;color:var(--muted)}
+.step .dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--rule);font-size:15px;background:var(--sheet)}
+.step.done{color:var(--ink)}
+.step.done .dot{background:var(--desk);border-color:var(--desk);color:var(--sheet)}
+.step.cur{color:var(--ink)}
+.step.cur .dot{border-color:var(--desk);color:var(--desk);box-shadow:0 0 0 4px var(--desk-fill)}
+.step .val{font-family:var(--f-body);font-weight:500;font-size:14px;color:var(--muted);letter-spacing:0}
+.step:disabled{cursor:default}
+.sep{width:22px;height:2px;background:var(--rule)}
+@media (max-width:600px){.step:not(.cur) .lbl,.step .val{display:none}.sep{width:14px}.steps{flex-wrap:nowrap}.step{padding:4px}}
+.banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 16px;font-family:var(--f-display);font-weight:700;font-size:20px}
+.banner button{border:0;background:var(--desk);color:var(--sheet);border-radius:999px;padding:6px 16px;font-family:var(--f-display);font-weight:700;font-size:17px}
+.cards.lay{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+@media (max-width:600px){.cards.lay{grid-template-columns:1fr 1fr;gap:10px}.cards.lay .t{font-size:17px}}
+.badge{white-space:nowrap}
+button.badge{border:0;cursor:pointer}
+.done-btn{border:0;background:var(--ok);color:var(--sheet);font-family:var(--f-display);font-weight:700;font-size:20px;padding:8px 22px;border-radius:999px}
+.done-btn:disabled{background:var(--rule);color:var(--muted);cursor:not-allowed}
+.sizechip{border:2px solid var(--rule);background:var(--sheet);border-radius:999px;padding:7px 14px;font-family:var(--f-display);font-weight:700;font-size:18px;display:flex;gap:6px;align-items:center}
+.sizechip:hover{border-color:var(--desk)}
+.key{display:flex;gap:14px;justify-content:center;font-size:14px;color:var(--muted);align-items:center}
+.key i{display:inline-block;width:22px;height:12px;border-radius:6px;vertical-align:middle;margin-right:4px}
+.summary{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.chip{display:grid;justify-items:center;gap:2px;background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:10px 18px;min-width:110px}
+.chip b{font-family:var(--f-display);font-size:30px;line-height:1}
+.chip span{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.other{font-family:var(--f-display);font-weight:700;font-size:22px;color:var(--desk)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.pulse{animation:pulse .5s ease-in-out 3}
+
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5vw,40px);margin:0;text-align:center;text-wrap:balance}
+.stage{display:grid;gap:20px;justify-items:center}
+
+/* people */
+.counter{display:flex;align-items:center;gap:22px}
+.round{width:64px;height:64px;border-radius:50%;border:2px solid var(--rule);background:var(--sheet);font-size:32px;line-height:1;display:grid;place-items:center}
+.round:hover{border-color:var(--desk)}
+.bignum{font-family:var(--f-display);font-weight:700;font-size:96px;line-height:1;min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
+.people{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:420px}
+.next{border:0;background:var(--desk);color:var(--sheet);font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:.04em;padding:12px 40px;border-radius:999px}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;width:100%}
+.card{border:2px solid var(--rule);background:var(--sheet);border-radius:10px;padding:14px;display:grid;gap:8px;justify-items:center;text-align:center;min-width:0}
+.card:hover{border-color:var(--desk)}
+.card.sel{border-color:var(--desk);box-shadow:0 0 0 4px var(--desk-fill)}
+.card svg{width:100%;height:auto;display:block}
+.card .t{font-family:var(--f-display);font-weight:700;font-size:22px}
+.card .s{font-size:14px;color:var(--muted)}
+.custom{display:flex;gap:6px;align-items:center;font-family:var(--f-display);font-size:20px;font-weight:600}
+.custom input{width:76px;font:inherit;text-align:center;border:2px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);padding:4px}
+.go{border:0;background:var(--desk);color:var(--sheet);border-radius:999px;padding:6px 18px;font-family:var(--f-display);font-weight:700;font-size:17px}
+
+/* layouts */
+.badge{font-family:var(--f-display);font-weight:700;font-size:20px;padding:2px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}
+.badge.bad{background:var(--bad-bg);color:var(--bad)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.card.dim{opacity:.75}
+.card.best{border-color:var(--ok)}
+.tagbest{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ok)}
+
+/* arrange */
+.arrange{width:100%;display:grid;gap:12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;min-height:48px}
+.tool{display:flex;align-items:center;gap:6px;border:2px solid var(--rule);background:var(--sheet);border-radius:999px;padding:8px 16px;font-weight:600}
+.tool:hover{border-color:var(--desk)}
+.tool svg{width:20px;height:20px}
+.tool.del{color:var(--bad)}
+.tool.add{background:var(--desk);border-color:var(--desk);color:var(--sheet)}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:8px;position:relative}
+.sheet svg{display:block;width:100%;height:auto;max-height:78vh;touch-action:none}
+.sheet [data-id]{cursor:grab}
+.selbox{display:flex;gap:6px;align-items:center;font-family:var(--f-display);font-size:18px;font-weight:600}
+.selbox input{width:76px;font:inherit;text-align:center;border:2px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);padding:3px}
+svg text{font-family:var(--f-display)}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:no-preference){.next .arr{display:inline-block;animation:nudge 1.4s ease-in-out infinite}}
+</style>
+
+<div class="wrap">
+  <nav class="steps" id="steps" aria-label="Steps"></nav>
+  <main class="stage" id="stage"></main>
+</div>
+
+<script>
+(function(){
+const R = 17 + 8/12, L = 23 + 3/12, LW = R - (10 + 4/12), C = 3;
+const WING = 25.3, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
+const OBST = [
+  {x:R-(1+8/12), y:0, w:1+8/12, h:1.375},
+  {x:R-8/12, y:14.5, w:8/12, h:1+2.5/12},
+  {x:0, y:0, w:4, h:5/12}
+];
+const KEEP = [
+  {x:0, y:AL0, w:3.5, h:WING-AL0},
+  {x:0, y:21.8, w:LW, h:WING-21.8}
+];
+const DESKS = [
+  {w:48, d:24, s:"Compact"},
+  {w:55, d:24, s:"Standard"},
+  {w:60, d:30, s:"Wide"},
+  {w:63, d:31.5, s:"IKEA UTESPELARE"}
+];
+const H = (x,y,f)=>({x,y,o:"h",f}), V = (x,y,f)=>({x,y,o:"v",f});
+const LAYOUTS = [
+  { id:"perimeter", name:"Perimeter ring + island",
+    sum:"Desks along the side and top walls, all facing the wall, with a back-to-back pair in the middle. The center stays open.",
+    pros:["Everyone gets a wall behind their monitor, so cables are easy to run and screens aren't on show","Open center works for a standing huddle","Easy to add or drop one desk"],
+    cons:["People sit with their backs to the room","The column on the right wall splits that row"],
+    build(W,D){ const c=[];
+      for(let y=0.6;y+W<=AL0-0.2;y+=W) c.push(V(0,y,"e"));
+      for(let y=1.5;y+W<=14.4;y+=W) c.push(V(R-D,y,"w"));
+      for(let y=16.0;y+W<=L;y+=W) c.push(V(R-D,y,"w"));
+      for(let x=D+C;x+W<=R-D-C;x+=W) c.push(H(x,0.45,"s"));
+      const span=R-2*D-2*C, cols=Math.max(0,Math.floor((span-1)/W)), x0=(R-cols*W)/2;
+      for(let y=0.45+D+5;y+2*D+C<=21.8;y+=2*D+5) for(let i=0;i<cols;i++){c.push(H(x0+i*W,y,"n"));c.push(H(x0+i*W,y+D,"s"));}
+      for(let x=LW+0.25;x+W<=R-D-C;x+=W) c.push(H(x,L-D,"n"));
+      return {c, aisle:{w:(span-cols*W)/2, label:"walkway each side of the island"}};
+    }},
+  { id:"pods", name:"Two pods of four + wall row",
+    sum:"Two clusters of four desks on the left, back to back in pairs, plus a single row on the right wall facing it.",
+    pros:["Pods suit small teams that talk all day","Wall row on the right gives 2–3 quieter seats","A clear walkway runs from the entry to every seat"],
+    cons:["People in a pod face each other across the desks, so desks may need privacy screens","Pod desks in the middle need floor boxes or cable trays for power"],
+    build(W,D){ const c=[], pitch=2*D+4.75;
+      for(let y=0.45+C;y+2*D+C<=AL0;y+=pitch){ c.push(H(0,y,"n"),H(W,y,"n"),H(0,y+D,"s"),H(W,y+D,"s")); }
+      for(let y=1.5;y+W<=14.4;y+=W) c.push(V(R-D,y,"w"));
+      for(let y=16.0;y+W<=L;y+=W) c.push(V(R-D,y,"w"));
+      const ax=2*W, aw=R-D-C-ax;
+      return {c, aisle:{w:aw, label:"center walkway", rect:{x:ax,y:0.6,w:Math.max(aw,0),h:21}}};
+    }},
+  { id:"rows", name:"Classroom rows",
+    sum:"Rows of desks all facing the window wall, with a walkway down the right side.",
+    pros:["Nobody faces anyone else's screen","Simple to wire: one power run per row","Looks orderly, and you can see the whole room from the back"],
+    cons:["People in back rows walk behind others to reach their seats","The bottom row loses seats to the entry area"],
+    build(W,D){ const c=[], per=Math.max(1,Math.floor((R-3)/W));
+      for(let y=0.5;y+D+C<=L;y+=D+3.5) for(let i=0;i<per;i++) c.push(H(i*W,y,"s"));
+      const aw=R-per*W;
+      return {c, aisle:{w:aw, label:"side walkway", rect:{x:per*W,y:0.6,w:aw,h:L-0.6}}};
+    }},
+  { id:"spine", name:"Wall row + center spine",
+    sum:"One row on the left wall plus a long double row of back-to-back desks down the middle. The walkway runs along the right wall.",
+    pros:["Fits the most desks in this room","The spine shares one power and data run","The walkway is clear and straight from the stairs"],
+    cons:["Chairs on the left sit back to back with only about 5½ ft between desks","Feels denser and less private"],
+    build(W,D){ const c=[];
+      for(let y=0.6;y+W<=AL0-0.2;y+=W) c.push(V(0,y,"e"));
+      const sx=D+5.5;
+      for(let y=0.45;y+W<=21.8;y+=W){ c.push(V(sx,y,"w"),V(sx+D,y,"e")); }
+      const ax=sx+2*D+C, aw=R-ax;
+      return {c, aisle:{w:aw, label:"right-wall walkway", rect:{x:ax,y:0.6,w:Math.max(aw,0),h:L-0.6}}};
+    }},
+  { id:"benches", name:"Two long benches",
+    sum:"Two benches run across the room, each with a row of desks on both sides. It's a trading-floor style layout.",
+    pros:["Seats a lot of people","Two long tables make a tidy, modern look","Short power runs inside each bench"],
+    cons:["Least privacy: everyone faces someone","Middle seats are hard to reach once chairs are pushed back"],
+    build(W,D){ const c=[], per=Math.max(1,Math.floor((R-3)/W)), pitch=2*D+4.75;
+      for(let y=0.45+C;y+2*D+C<=L;y+=pitch) for(let i=0;i<per;i++){ c.push(H(i*W,y,"n"),H(i*W,y+D,"s")); }
+      const aw=R-per*W;
+      return {c, aisle:{w:aw, label:"side walkway", rect:{x:per*W,y:0.6,w:aw,h:L-0.6}}};
+    }}
+];
+
+const E=0.01;
+const ov=(a,b)=>a.x<b.x+b.w-E&&b.x<a.x+a.w-E&&a.y<b.y+b.h-E&&b.y<a.y+a.h-E;
+const inside=r=>r.x>=-E&&r.y>=-E&&r.x+r.w<=R+E&&r.y+r.h<=L+E;
+const blocked=r=>OBST.some(o=>ov(r,o))||KEEP.some(k=>ov(r,k));
+function zone(d,f){ return f==="n"?{x:d.x,y:d.y-C,w:d.w,h:C}:f==="s"?{x:d.x,y:d.y+d.h,w:d.w,h:C}:f==="e"?{x:d.x+d.w,y:d.y,w:C,h:d.h}:{x:d.x-C,y:d.y,w:C,h:d.h}; }
+function gap(a,b){ const gx=Math.max(b.x-(a.x+a.w),a.x-(b.x+b.w),0), gy=Math.max(b.y-(a.y+a.h),a.y-(b.y+b.h),0); return Math.max(gx,gy); }
+
+function solve(lay,W,D){
+  const {c,aisle}=lay.build(W,D), acc=[];
+  for(const k of c){
+    const desk=k.o==="h"?{x:k.x,y:k.y,w:W,h:D}:{x:k.x,y:k.y,w:D,h:W};
+    const chair=zone(desk,k.f);
+    if(!inside(desk)||!inside(chair)||blocked(desk)||blocked(chair)) continue;
+    if(aisle.rect&&ov(desk,aisle.rect)) continue;
+    if(acc.some(a=>ov(desk,a.desk)||ov(desk,a.chair)||ov(chair,a.desk))) continue;
+    acc.push({desk,chair,f:k.f});
+  }
+  let tight=Infinity;
+  for(let i=0;i<acc.length;i++) for(let j=i+1;j<acc.length;j++){
+    if(ov(acc[i].chair,acc[j].chair)){ tight=Math.min(tight,gap(acc[i].desk,acc[j].desk)); }
+  }
+  return {seats:acc,aisle,tight};
+}
+
+
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(text!=null) e.textContent=text; parent&&parent.appendChild(e); return e; }
+const $=id=>document.getElementById(id);
+const inch=v=>String(v).replace(".5","½");
+
+const state={step:0,people:10,w:55,d:24,layout:null,edit:null,sel:null,snap:true};
+try{ const s=JSON.parse(localStorage.getItem("deskwiz")||"null"); if(s) Object.assign(state,s,{sel:null}); }catch(e){}
+const save=()=>{ try{ localStorage.setItem("deskwiz",JSON.stringify(Object.assign({},state,{sel:null}))); }catch(e){} };
+
+/* ---------- room drawing ---------- */
+function drawRoom(svg,mini){
+  const vb=mini?{x:-3.2,y:-0.6,w:21.6,h:26.4}:{x:-3.4,y:-0.8,w:21.9,h:30.2};
+  svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  const defs=el("defs",{},svg);
+  const pat=el("pattern",{id:"h"+(mini?"m":""),width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
+  el("line",{x1:0,y1:0,x2:0,y2:0.5,stroke:"var(--hatch)","stroke-width":0.12},pat);
+  if(!mini){ const g=el("g",{stroke:"var(--grid)","stroke-width":0.03},svg);
+    for(let x=1;x<R;x++) el("line",{x1:x,y1:0,x2:x,y2:L},g);
+    for(let y=1;y<L;y++) el("line",{x1:0,y1:y,x2:R,y2:y},g); }
+  // entry zone
+  el("path",{d:`M0,${AL0} H3.5 V21.8 H${LW} V${WING} H0 Z`,fill:"var(--warn-bg)",opacity:mini?0.8:0.7},svg);
+  // stairs
+  const sh=mini?2.2:4.6;
+  el("rect",{x:LW,y:L,width:R-LW,height:sh,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
+  for(let x=LW+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:L+sh,stroke:"var(--muted)","stroke-width":0.05},svg);
+  if(!mini){
+    el("text",{x:(LW+R)/2,y:L+2.6,"text-anchor":"middle","font-size":0.8,fill:"var(--muted)","letter-spacing":0.3},svg,"STAIRS");
+    el("path",{d:`M${LW/2+0.6},${WING+1.6} v-1.8 m-0.5,0.5 l0.5,-0.5 l0.5,0.5`,stroke:"var(--warn)","stroke-width":0.12,fill:"none"},svg);
+    el("text",{x:LW/2+0.6,y:WING+2.5,"text-anchor":"middle","font-size":0.7,fill:"var(--warn)"},svg,"ENTRY");
+  }
+  const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-2.75 V${AL0} H0 Z`;
+  el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":mini?0.28:0.2},svg);
+  const dy0=AL0+1.4, dl=2.75;
+  el("path",{d:`M-2.75,${dy0} L-0.05,${dy0} A${dl},${dl} 0 0 1 -2.75,${dy0+dl}`,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
+  if(!mini) el("text",{x:-1.4,y:AL0-0.3,"text-anchor":"middle","font-size":0.6,fill:"var(--muted)"},svg,"DOOR");
+  OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:`url(#h${mini?"m":""})`,stroke:"var(--ink)","stroke-width":0.05},svg));
+  if(!mini){
+    el("text",{x:R/2,y:-0.15,"text-anchor":"middle","font-size":0.6,fill:"var(--muted)"},svg,"17′ 8″");
+    const t=el("text",{x:-0.25,y:L/2-3,"text-anchor":"middle","font-size":0.6,fill:"var(--muted)"},svg,"23′ 3″"); t.setAttribute("transform",`rotate(-90 -0.25 ${L/2-3})`);
+    const sx=R-5, sy=L+5.2;
+    for(let i=0;i<5;i++) el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
+    el("text",{x:sx+5,y:sy+0.85,"font-size":0.5,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
+  }
+}
+
+/* ---------- pieces ---------- */
+const CHAIR_IN=26;
+const UNION=[{x:0,y:0,w:R,h:L},{x:0,y:0,w:LW,h:WING}];
+const inUnion=r=>UNION.some(u=>r.x>=u.x-E&&r.y>=u.y-E&&r.x+r.w<=u.x+u.w+E&&r.y+r.h<=u.y+u.h+E);
+function rectOf(it){ if(it.type==="desk") return {x:it.x,y:it.y,w:it.w,h:it.h}; const r=it.dia/24; return {x:it.x-r,y:it.y-r,w:2*r,h:2*r}; }
+function circleHitsRect(c,r){ const rad=c.dia/24, nx=Math.max(r.x,Math.min(c.x,r.x+r.w)), ny=Math.max(r.y,Math.min(c.y,r.y+r.h)); return (c.x-nx)**2+(c.y-ny)**2<(rad-E)**2; }
+function hits(a,b){
+  if(a.type==="chair"&&b.type==="chair") return Math.hypot(a.x-b.x,a.y-b.y)<(a.dia+b.dia)/24-E;
+  if(a.type==="chair") return circleHitsRect(a,rectOf(b));
+  if(b.type==="chair") return circleHitsRect(b,rectOf(a));
+  return ov(rectOf(a),rectOf(b));
+}
+function itemState(it,items){
+  const r=rectOf(it);
+  const obstHit=it.type==="chair"?OBST.some(o=>circleHitsRect(it,o)):OBST.some(o=>ov(r,o));
+  if(!inUnion(r)||obstHit||items.some(o=>o!==it&&hits(it,o))) return "bad";
+  if(KEEP.some(k=>ov(r,k))) return "warn";
+  return "ok";
+}
+function seatsToItems(seats){
+  const items=[]; let id=1;
+  seats.forEach(s=>{ const d=s.desk;
+    items.push({id:id++,type:"desk",x:d.x,y:d.y,w:d.w,h:d.h});
+    const off=0.25+CHAIR_IN/24;
+    const cx=s.f==="e"?d.x+d.w+off:s.f==="w"?d.x-off:d.x+d.w/2, cy=s.f==="s"?d.y+d.h+off:s.f==="n"?d.y-off:d.y+d.h/2;
+    items.push({id:id++,type:"chair",x:cx,y:cy,dia:CHAIR_IN});
+  });
+  return items;
+}
+function drawItems(svg,items,opt={}){
+  const order=items.filter(i=>i.type==="desk").concat(items.filter(i=>i.type==="chair"));
+  order.forEach(it=>{
+    const st=opt.mini?"ok":itemState(it,items), sel=it.id===opt.sel;
+    const stroke=st==="bad"?"var(--bad)":st==="warn"?"var(--warn)":(it.type==="desk"?"var(--desk)":"var(--chair)");
+    const fill=st==="bad"?"var(--bad-bg)":st==="warn"?"var(--warn-bg)":(it.type==="desk"?"var(--desk-fill)":"var(--sheet)");
+    const g=el("g",opt.mini?{}:{"data-id":it.id},svg);
+    if(it.type==="desk") el("rect",{x:it.x,y:it.y,width:it.w,height:it.h,fill,stroke,"stroke-width":sel?0.16:(opt.mini?0.12:0.08)},g);
+    else { const rad=it.dia/24; el("circle",{cx:it.x,cy:it.y,r:rad,fill,stroke,"stroke-width":sel?0.14:(opt.mini?0.1:0.07)},g);
+      if(!opt.mini) el("circle",{cx:it.x,cy:it.y,r:rad*0.55,fill:"none",stroke,"stroke-width":0.04,"pointer-events":"none"},g); }
+    if(sel){ const r=rectOf(it); el("rect",{x:r.x-0.18,y:r.y-0.18,width:r.w+0.36,height:r.h+0.36,rx:0.15,fill:"none",stroke:"var(--ink)","stroke-width":0.05,"stroke-dasharray":"0.22 0.12","pointer-events":"none"},g); }
+  });
+}
+function measure(it,items){
+  const r=rectOf(it), others=OBST.concat(items.filter(o=>o!==it).map(rectOf));
+  const yo=b=>b.y<r.y+r.h-E&&r.y<b.y+b.h-E, xo=b=>b.x<r.x+r.w-E&&r.x<b.x+b.w-E;
+  const inWing=r.y+r.h>L+E;
+  let left=0, right=inWing?LW:R, up=0, down=(r.x+r.w<=LW+E)?WING:L;
+  others.forEach(b=>{
+    if(yo(b)){ if(b.x+b.w<=r.x+E) left=Math.max(left,b.x+b.w); if(b.x>=r.x+r.w-E) right=Math.min(right,b.x); }
+    if(xo(b)){ if(b.y+b.h<=r.y+E) up=Math.max(up,b.y+b.h); if(b.y>=r.y+r.h-E) down=Math.min(down,b.y); }
+  });
+  return {r,left:r.x-left,right:right-(r.x+r.w),up:r.y-up,down:down-(r.y+r.h),lx:left,rx:right,uy:up,dy:down};
+}
+function drawMeasure(svg,m){
+  const r=m.r, cx=r.x+r.w/2, cy=r.y+r.h/2;
+  const line=(x1,y1,x2,y2,d,vert)=>{ if(d<0.04||d>40) return;
+    const inches=Math.round(d*12), col=inches<36?"var(--bad)":"var(--ink)";
+    el("line",{x1,y1,x2,y2,stroke:col,"stroke-width":0.07,"pointer-events":"none"},svg);
+    [[x1,y1],[x2,y2]].forEach(([x,y])=>el("line",Object.assign(vert?{x1:x-0.25,y1:y,x2:x+0.25,y2:y}:{x1:x,y1:y-0.25,x2:x,y2:y+0.25},{stroke:col,"stroke-width":0.07,"pointer-events":"none"}),svg));
+    const mx=(x1+x2)/2,my=(y1+y2)/2, t=`${inches}″`, tw=0.36*t.length+0.3;
+    el("rect",{x:mx-tw/2,y:my-0.4,width:tw,height:0.74,rx:0.37,fill:col,"pointer-events":"none"},svg);
+    el("text",{x:mx,y:my+0.14,"text-anchor":"middle","font-size":0.52,"font-weight":700,fill:"var(--sheet)","pointer-events":"none"},svg,t);
+  };
+  line(m.lx,cy,r.x,cy,m.left,false); line(r.x+r.w,cy,m.rx,cy,m.right,false);
+  line(cx,m.uy,cx,r.y,m.up,true); line(cx,r.y+r.h,cx,m.dy,m.down,true);
+}
+
+/* ---------- icons ---------- */
+const ICON={
+  rotate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  person:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg>'
+};
+
+/* ---------- steps ---------- */
+const STEPS=[
+  {k:"People", v:()=>`${state.people}`},
+  {k:"Desk", v:()=>`${inch(state.w)}×${inch(state.d)}″`},
+  {k:"Layout", v:()=>state.layout!=null?LAYOUTS[state.layout].name.replace(/ \+.*$/,""):""},
+  {k:"Arrange", v:()=>""},
+  {k:"Done", v:()=>""}
+];
+function canReach(i){ return i<=2||(i>=3&&state.layout!=null&&!!state.edit); }
+function renderSteps(){
+  const n=$("steps"); n.innerHTML="";
+  STEPS.forEach((s,i)=>{
+    if(i) el("span",{},null);
+    if(i){ const sp=document.createElement("span"); sp.className="sep"; n.appendChild(sp); }
+    const b=document.createElement("button"); b.type="button";
+    const cls=i<state.step?"done":i===state.step?"cur":"";
+    b.className="step "+cls; b.disabled=!(i<state.step||(i>state.step&&canReach(i)&&i<=maxStep()));
+    if(i===state.step) b.setAttribute("aria-current","step");
+    b.innerHTML=`<span class="dot">${i<state.step?"✓":i+1}</span><span class="lbl">${s.k}</span>${i<state.step&&s.v()?`<span class="val">${s.v()}</span>`:""}`;
+    b.onclick=()=>go(i); n.appendChild(b);
+  });
+}
+function maxStep(){ return state.edit?(okToFinish()?4:3):2; }
+function go(i){ state.step=i; state.sel=null; render(); window.scrollTo({top:0}); }
+
+function stagePeople(st){
+  st.innerHTML=`<h1>How many people?</h1>
+  <div class="counter">
+    <button class="round" id="minus" type="button" aria-label="Fewer people">−</button>
+    <div class="bignum" id="pnum" aria-live="polite">${state.people}</div>
+    <button class="round" id="plus" type="button" aria-label="More people">+</button>
+  </div>
+  <div class="people" id="ppl" aria-hidden="true"></div>
+  <button class="next" id="next" type="button">Next <span class="arr">→</span></button>`;
+  const upd=()=>{ $("pnum").textContent=state.people; $("ppl").innerHTML=ICON.person.repeat(state.people); $("ppl").style.color="var(--desk)"; save(); };
+  $("minus").onclick=()=>{ state.people=Math.max(1,state.people-1); state.layout=null; state.edit=null; upd(); renderSteps(); };
+  $("plus").onclick=()=>{ state.people=Math.min(16,state.people+1); state.layout=null; state.edit=null; upd(); renderSteps(); };
+  $("next").onclick=()=>go(1);
+  upd();
+}
+
+function deskSvg(w,d){
+  const s=document.createElementNS(NS,"svg"); s.setAttribute("viewBox","-2 0 70 60");
+  const W=w, D=d; el("rect",{x:(66-W)/2,y:4,width:W,height:D,rx:1,fill:"var(--desk-fill)",stroke:"var(--desk)","stroke-width":1.2},s);
+  el("circle",{cx:33,cy:4+D+12,r:9,fill:"var(--sheet)",stroke:"var(--chair)","stroke-width":1.2},s);
+  return s;
+}
+function stageDesk(st){
+  st.innerHTML=`<h1>Which desk?</h1><div class="cards" id="cards"></div>`;
+  const c=$("cards");
+  DESKS.forEach(d=>{
+    const b=document.createElement("button"); b.type="button";
+    b.className="card"+(state.w===d.w&&state.d===d.d?" sel":"");
+    b.appendChild(deskSvg(d.w,d.d));
+    b.insertAdjacentHTML("beforeend",`<span class="t">${inch(d.w)} × ${inch(d.d)}″</span><span class="s">${d.s}</span>`);
+    b.onclick=()=>{ if(state.w!==d.w||state.d!==d.d){ state.layout=null; state.edit=null; } state.w=d.w; state.d=d.d; go(2); };
+    c.appendChild(b);
+  });
+  const isCustom=!DESKS.some(d=>d.w===state.w&&d.d===state.d);
+  const cu=document.createElement("div"); cu.className="card"+(isCustom?" sel":"");
+  if(!isCustom&&!state.otherOpen){
+    const ob=document.createElement("button"); ob.type="button"; ob.className="card";
+    ob.innerHTML=`<svg viewBox="-2 0 70 60"><rect x="8" y="4" width="50" height="26" rx="1" fill="none" stroke="var(--desk)" stroke-width="1.2" stroke-dasharray="3 2"/><text x="33" y="22" text-anchor="middle" font-size="14" fill="var(--desk)">?</text></svg><span class="other">Other size</span>`;
+    ob.onclick=()=>{ state.otherOpen=true; stageDesk(st); $("cw").focus(); };
+    c.appendChild(ob); return;
+  }
+  cu.appendChild(deskSvg(isCustom?Math.min(state.w,66):56,isCustom?Math.min(state.d,30):26));
+  cu.insertAdjacentHTML("beforeend",`<div class="custom"><input id="cw" type="number" inputmode="decimal" min="24" max="96" step="0.5" value="${isCustom?state.w:""}" placeholder="W" aria-label="Width in inches"><span>×</span><input id="cd" type="number" inputmode="decimal" min="16" max="40" step="0.5" value="${isCustom?state.d:""}" placeholder="D" aria-label="Depth in inches"><span>″</span></div><button class="go" id="cgo" type="button" disabled>Use →</button>`);
+  c.appendChild(cu);
+  const chk=()=>{ const w=parseFloat($("cw").value), d=parseFloat($("cd").value); $("cgo").disabled=!(w>=24&&w<=96&&d>=16&&d<=40); };
+  $("cw").oninput=chk; $("cd").oninput=chk; chk();
+  const use=()=>{ if($("cgo").disabled) return; const w=parseFloat($("cw").value), d=parseFloat($("cd").value); if(w!==state.w||d!==state.d){ state.layout=null; state.edit=null; } state.w=w; state.d=d; go(2); };
+  $("cgo").onclick=use; [$("cw"),$("cd")].forEach(i=>i.onkeydown=e=>{ if(e.key==="Enter") use(); });
+}
+
+function stageLayout(st){
+  const W=state.w/12, D=state.d/12;
+  const res=LAYOUTS.map((l,i)=>({i,l,seats:solve(l,W,D).seats}));
+  const sorted=res.slice().sort((a,b)=>Math.min(b.seats.length,state.people)-Math.min(a.seats.length,state.people)||a.i-b.i);
+  const anyFits=res.some(r=>r.seats.length>=state.people), best=sorted[0].i;
+  st.innerHTML=`<h1>Pick a layout</h1>${anyFits?"":`<div class="banner">Max ${sorted[0].seats.length} of ${state.people} with this desk <button type="button" id="smaller">← Smaller desk</button></div>`}<div class="cards lay" id="cards"></div>`;
+  if(!anyFits) $("smaller").onclick=()=>go(1);
+  const c=$("cards");
+  sorted.forEach(r=>{
+    const n=r.seats.length, fits=n>=state.people;
+    const b=document.createElement("button"); b.type="button";
+    b.className="card"+(state.layout===r.i?" sel":"")+(fits||r.i===best?"":" dim")+(r.i===best?" best":"");
+    if(r.i===best) b.insertAdjacentHTML("beforeend",`<span class="tagbest">★ Best</span>`);
+    const svg=document.createElementNS(NS,"svg"); drawRoom(svg,true);
+    drawItems(svg,seatsToItems(r.seats.slice(0,state.people)),{mini:true});
+    b.appendChild(svg);
+    const badge=fits?`<span class="badge ok">${ICON.person.replace('width="26" height="26"','width="18" height="18"')} ${state.people} ✓</span>`
+      :`<span class="badge bad">${ICON.person.replace('width="26" height="26"','width="18" height="18"')} ${n} / ${state.people}</span>`;
+    b.insertAdjacentHTML("beforeend",`${badge}<span class="t">${r.l.name}</span>`);
+    b.onclick=()=>{ if(state.layout!==r.i||!state.edit){ state.layout=r.i; state.edit={items:seatsToItems(r.seats.slice(0,state.people)),next:9999}; state.edit.next=state.edit.items.length+1; } go(3); };
+    c.appendChild(b);
+  });
+}
+
+/* ---------- arrange ---------- */
+let drag=null;
+function stageArrange(st){
+  st.innerHTML=`<div class="arrange">
+    <div class="bar" id="status" style="min-height:0;gap:8px"></div>
+    <div class="bar" id="bar"></div>
+    <div class="sheet"><svg id="plan" role="img" aria-label="Floor plan, drag desks and chairs"></svg></div>
+    <div class="key" id="key"></div>
+  </div>`;
+  const svg=$("plan");
+  svg.addEventListener("pointerdown",e=>{
+    const g=e.target.closest("[data-id]");
+    if(!g){ state.sel=null; state.sizing=false; drawArrange(); return; }
+    const it=state.edit.items.find(i=>i.id===+g.dataset.id); if(!it) return;
+    if(state.sel!==it.id) state.sizing=false; state.sel=it.id; const p=svgPoint(e);
+    const kids=it.type==="desk"?chairsOf(it).map(c=>({c,ox:c.x-it.x,oy:c.y-it.y})):[];
+    drag={it,dx:p.x-it.x,dy:p.y-it.y,id:e.pointerId,kids};
+    svg.setPointerCapture(e.pointerId); e.preventDefault(); drawArrange();
+  });
+  svg.addEventListener("pointermove",e=>{
+    if(!drag||e.pointerId!==drag.id) return;
+    const p=svgPoint(e); drag.it.x=snapv(p.x-drag.dx); drag.it.y=snapv(p.y-drag.dy); clamp(drag.it);
+    drag.kids.forEach(k=>{ k.c.x=drag.it.x+k.ox; k.c.y=drag.it.y+k.oy; });
+    drawPlanOnly();
+  });
+  const end=e=>{ if(drag&&e.pointerId===drag.id){ drag=null; save(); drawArrange(); } };
+  svg.addEventListener("pointerup",end); svg.addEventListener("pointercancel",end);
+  drawArrange();
+}
+function svgPoint(evt){ const svg=$("plan"), pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+const snapv=v=>Math.round(v*4)/4;
+function clamp(it){ const r=rectOf(it), ox=it.x-r.x, oy=it.y-r.y;
+  let x=Math.min(Math.max(r.x,0),R-r.w); const maxY=(x+r.w<=LW+E?WING:L)-r.h; let y=Math.min(Math.max(r.y,0),maxY);
+  it.x=x+ox; it.y=y+oy; }
+const getSel=()=>state.edit&&state.edit.items.find(i=>i.id===state.sel);
+function chairsOf(desk){
+  const desks=state.edit.items.filter(i=>i.type==="desk");
+  const dist=(c,d)=>{ const nx=Math.max(d.x,Math.min(c.x,d.x+d.w)), ny=Math.max(d.y,Math.min(c.y,d.y+d.h)); return Math.hypot(c.x-nx,c.y-ny); };
+  return state.edit.items.filter(c=>c.type==="chair"&&dist(c,desk)<=c.dia/24+1.25&&desks.every(d=>d===desk||dist(c,d)>=dist(c,desk)));
+}
+function drawPlanOnly(){
+  const svg=$("plan"); if(!svg) return; svg.innerHTML=""; drawRoom(svg,false);
+  drawItems(svg,state.edit.items,{sel:state.sel});
+  const s=getSel(); if(s) drawMeasure(svg,measure(s,state.edit.items));
+  $("key").innerHTML=s?`<span><i style="background:var(--bad)"></i>under 36″</span><span><i style="background:var(--ink)"></i>OK</span>`:`<span>✋ Drag to move · tap to select</span>`;
+  renderStatus();
+}
+function renderStatus(){
+  const items=state.edit.items, desks=items.filter(i=>i.type==="desk").length;
+  const bad=items.filter(i=>itemState(i,items)==="bad").length, warn=items.filter(i=>itemState(i,items)==="warn").length;
+  let st=$("status"); if(!st) return;
+  const p=ICON.person.replace('width="26" height="26"','width="18" height="18"');
+  st.innerHTML=`<span class="badge ${desks>=state.people?"ok":"bad"}">${p} ${desks} / ${state.people}</span>`+
+    (bad?`<button type="button" class="badge bad" data-show="bad">✕ ${bad} overlap</button>`:"")+
+    (warn?`<button type="button" class="badge warn" data-show="warn">! ${warn} in entry</button>`:"");
+  st.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>{ const kind=b.dataset.show;
+    document.querySelectorAll("#plan [data-id]").forEach(g=>{ const it=items.find(i=>i.id===+g.dataset.id); if(it&&itemState(it,items)===kind) g.classList.add("pulse"); }); });
+  const d=$("done"); if(d) d.disabled=!okToFinish();
+}
+function drawArrange(){
+  const bar=$("bar"), s=getSel();
+  if(!s){
+    bar.innerHTML=`<button class="tool add" id="add" type="button">${ICON.plus} Desk</button>
+      <button class="done-btn" id="done" type="button">Done ✓</button>`;
+    $("add").onclick=addDesk; $("done").onclick=()=>go(4);
+  } else if(s.type==="desk"){
+    const wide=s.w>=s.h, wi=Math.round((wide?s.w:s.h)*24)/2, di=Math.round((wide?s.h:s.w)*24)/2;
+    if(state.sizing){
+      bar.innerHTML=`<span class="selbox"><input id="sw" type="number" inputmode="decimal" step="0.5" value="${wi}" aria-label="Desk width in inches">×<input id="sd" type="number" inputmode="decimal" step="0.5" value="${di}" aria-label="Desk depth in inches">″</span>
+        <button class="done-btn" id="szok" type="button">✓</button>`;
+      $("szok").onclick=()=>{ state.sizing=false; drawArrange(); };
+    } else
+    bar.innerHTML=`<button class="sizechip" id="size" type="button" aria-label="Change desk size">${inch(wi)} × ${inch(di)}″ <span aria-hidden="true">✎</span></button>
+      <button class="tool" id="rot" type="button" aria-label="Rotate">${ICON.rotate}</button>
+      <button class="tool" id="dup" type="button" aria-label="Duplicate">${ICON.copy}</button>
+      <button class="tool del" id="del" type="button" aria-label="Delete">${ICON.trash}</button>`;
+    const apply=()=>{ const w=parseFloat($("sw").value)/12, d=parseFloat($("sd").value)/12; if(!(w>=2&&w<=10&&d>=1.3&&d<=4)) return;
+      const cx=s.x+s.w/2, cy=s.y+s.h/2; if(s.w>=s.h){s.w=w;s.h=d;}else{s.w=d;s.h=w;} s.x=cx-s.w/2; s.y=cy-s.h/2; drawPlanOnly(); save(); };
+    if(state.sizing){ $("sw").oninput=apply; $("sd").oninput=apply; [$("sw"),$("sd")].forEach(i=>i.onkeydown=e=>{ if(e.key==="Enter"){ state.sizing=false; drawArrange(); } }); }
+    else { $("size").onclick=()=>{ state.sizing=true; drawArrange(); $("sw").focus(); $("sw").select(); };
+      $("rot").onclick=rotateSel; $("dup").onclick=dupSel; $("del").onclick=delSel; }
+  } else {
+    bar.innerHTML=`<button class="tool" id="dup" type="button" aria-label="Duplicate">${ICON.copy}</button>
+      <button class="tool del" id="del" type="button" aria-label="Delete">${ICON.trash}</button>`;
+    $("dup").onclick=dupSel; $("del").onclick=delSel;
+  }
+  bar.querySelectorAll(".tool[aria-label]").forEach(b=>b.title=b.getAttribute("aria-label"));
+  drawPlanOnly();
+}
+function addDesk(){ const ed=state.edit, W=state.w/12, D=state.d/12;
+  const d={id:ed.next++,type:"desk",x:snapv(R/2-W/2),y:snapv(9),w:W,h:D};
+  ed.items.push(d,{id:ed.next++,type:"chair",x:d.x+W/2,y:d.y+D+0.25+CHAIR_IN/24,dia:CHAIR_IN}); state.sel=d.id; save(); drawArrange(); }
+function rotateSel(){ const s=getSel(); if(!s||s.type!=="desk") return; const cx=s.x+s.w/2, cy=s.y+s.h/2;
+  chairsOf(s).forEach(c=>{ const dx=c.x-cx, dy=c.y-cy; c.x=cx-dy; c.y=cy+dx; });
+  [s.w,s.h]=[s.h,s.w]; s.x=snapv(cx-s.w/2); s.y=snapv(cy-s.h/2); save(); drawArrange(); }
+function dupSel(){ const s=getSel(); if(!s) return; const ed=state.edit, c=Object.assign({},s,{id:ed.next++}), dx=s.type==="desk"?s.w:s.dia/12+0.25;
+  c.x+=dx; const kids=s.type==="desk"?chairsOf(s):[]; ed.items.push(c);
+  kids.forEach(k=>ed.items.push(Object.assign({},k,{id:ed.next++,x:k.x+dx})));
+  state.sel=c.id; save(); drawArrange(); }
+function delSel(){ const s=getSel(); if(!s) return; const kids=s.type==="desk"?chairsOf(s):[];
+  state.edit.items=state.edit.items.filter(i=>i!==s&&!kids.includes(i)); state.sel=null; save(); drawArrange(); }
+document.addEventListener("keydown",e=>{
+  if(state.step!==3||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  const s=getSel(); if(!s) return;
+  const step=(e.shiftKey?6:1)/12, mv={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]}[e.key];
+  if(mv){ (s.type==="desk"?chairsOf(s):[]).forEach(c=>{c.x+=mv[0];c.y+=mv[1];}); s.x+=mv[0]; s.y+=mv[1]; e.preventDefault(); save(); drawPlanOnly(); }
+  else if(e.key==="r"||e.key==="R"){ rotateSel(); e.preventDefault(); }
+  else if(e.key==="Delete"||e.key==="Backspace"){ delSel(); e.preventDefault(); }
+  else if(e.key==="Escape"){ state.sel=null; drawArrange(); }
+});
+
+function okToFinish(){ if(!state.edit) return false; const items=state.edit.items;
+  return items.filter(i=>i.type==="desk").length>=state.people&&!items.some(i=>itemState(i,items)!=="ok"); }
+function stageDone(st){
+  const items=state.edit.items, desks=items.filter(i=>i.type==="desk"), chairs=items.filter(i=>i.type==="chair").length;
+  const sizes={}; desks.forEach(d=>{ const a=Math.round(Math.max(d.w,d.h)*24)/2, b=Math.round(Math.min(d.w,d.h)*24)/2, k=`${inch(a)} × ${inch(b)}″`; sizes[k]=(sizes[k]||0)+1; });
+  st.innerHTML=`<h1>Your plan ✓</h1>
+    <div class="summary">${Object.entries(sizes).map(([k,n])=>`<div class="chip"><b>${n}</b><span>desks ${k}</span></div>`).join("")}<div class="chip"><b>${chairs}</b><span>chairs</span></div></div>
+    <div class="sheet" style="width:100%"><svg id="final" role="img" aria-label="Final floor plan"></svg></div>
+    <button class="tool" id="back" type="button">← Keep arranging</button>`;
+  const svg=$("final"); drawRoom(svg,false); drawItems(svg,items,{});
+  $("back").onclick=()=>go(3);
+}
+function render(){
+  if(state.step>=3&&!state.edit) state.step=2;
+  if(state.step===4&&!okToFinish()) state.step=3;
+  renderSteps();
+  const st=$("stage");
+  [stagePeople,stageDesk,stageLayout,stageArrange,stageDone][state.step](st);
+  save();
+}
+render();
+})();
+</script>
