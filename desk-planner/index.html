@@ -35,7 +35,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--desk);outline-o
 .step .val{font-family:var(--f-body);font-weight:500;font-size:14px;color:var(--muted);letter-spacing:0}
 .step:disabled{cursor:default}
 .sep{width:22px;height:2px;background:var(--rule)}
-@media (max-width:600px){.step:not(.cur) .lbl,.step .val{display:none}.sep{width:14px}.steps{flex-wrap:nowrap}.step{padding:4px}}
+@media (max-width:600px){.step:not(.cur) .lbl,.step .val{display:none}.sep{width:8px;flex-shrink:1}.steps{flex-wrap:nowrap;gap:3px;min-width:0}.step{padding:3px;gap:5px;font-size:16px}.step .dot{width:26px;height:26px}}
 .banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 16px;font-family:var(--f-display);font-weight:700;font-size:20px}
 .banner button{border:0;background:var(--desk);color:var(--sheet);border-radius:999px;padding:6px 16px;font-family:var(--f-display);font-weight:700;font-size:17px}
 .cards.lay{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
@@ -43,7 +43,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--desk);outline-o
 .badge{white-space:nowrap}
 button.badge{border:0;cursor:pointer}
 .done-btn{border:0;background:var(--ok);color:var(--sheet);font-family:var(--f-display);font-weight:700;font-size:20px;padding:8px 22px;border-radius:999px}
-.done-btn:disabled{background:var(--rule);color:var(--muted);cursor:not-allowed}
+.done-btn.blocked{background:var(--sheet);color:var(--muted);border:2px dashed var(--rule)}
+.x{border:0;background:none;font-size:22px;color:var(--muted);padding:6px 10px}
 .sizechip{border:2px solid var(--rule);background:var(--sheet);border-radius:999px;padding:7px 14px;font-family:var(--f-display);font-weight:700;font-size:18px;display:flex;gap:6px;align-items:center}
 .sizechip:hover{border-color:var(--desk)}
 .key{display:flex;gap:14px;justify-content:center;font-size:14px;color:var(--muted);align-items:center}
@@ -70,7 +71,7 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5vw,40px);m
 /* cards */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;width:100%}
 .card{border:2px solid var(--rule);background:var(--sheet);border-radius:10px;padding:14px;display:grid;gap:8px;justify-items:center;text-align:center;min-width:0}
-.card:hover{border-color:var(--desk)}
+@media (hover:hover){.card:hover{border-color:var(--desk)}}
 .card.sel{border-color:var(--desk);box-shadow:0 0 0 4px var(--desk-fill)}
 .card svg{width:100%;height:auto;display:block}
 .card .t{font-family:var(--f-display);font-weight:700;font-size:22px}
@@ -313,13 +314,13 @@ function measure(it,items){
 }
 function drawMeasure(svg,m){
   const r=m.r, cx=r.x+r.w/2, cy=r.y+r.h/2;
-  const line=(x1,y1,x2,y2,d,vert)=>{ if(d<0.04||d>40) return;
+  const line=(x1,y1,x2,y2,d,vert)=>{ if(d<0.5||d>40) return;
     const inches=Math.round(d*12), col=inches<36?"var(--bad)":"var(--ink)";
     el("line",{x1,y1,x2,y2,stroke:col,"stroke-width":0.07,"pointer-events":"none"},svg);
     [[x1,y1],[x2,y2]].forEach(([x,y])=>el("line",Object.assign(vert?{x1:x-0.25,y1:y,x2:x+0.25,y2:y}:{x1:x,y1:y-0.25,x2:x,y2:y+0.25},{stroke:col,"stroke-width":0.07,"pointer-events":"none"}),svg));
-    const mx=(x1+x2)/2,my=(y1+y2)/2, t=`${inches}″`, tw=0.36*t.length+0.3;
-    el("rect",{x:mx-tw/2,y:my-0.4,width:tw,height:0.74,rx:0.37,fill:col,"pointer-events":"none"},svg);
-    el("text",{x:mx,y:my+0.14,"text-anchor":"middle","font-size":0.52,"font-weight":700,fill:"var(--sheet)","pointer-events":"none"},svg,t);
+    const mx=(x1+x2)/2,my=(y1+y2)/2, t=`${inches}″`, tw=0.48*t.length+0.4;
+    el("rect",{x:mx-tw/2,y:my-0.5,width:tw,height:1,rx:0.5,fill:col,"pointer-events":"none"},svg);
+    el("text",{x:mx,y:my+0.24,"text-anchor":"middle","font-size":0.72,"font-weight":700,fill:"var(--sheet)","pointer-events":"none"},svg,t);
   };
   line(m.lx,cy,r.x,cy,m.left,false); line(r.x+r.w,cy,m.rx,cy,m.right,false);
   line(cx,m.uy,cx,r.y,m.up,true); line(cx,r.y+r.h,cx,m.dy,m.down,true);
@@ -357,7 +358,7 @@ function renderSteps(){
   });
 }
 function maxStep(){ return state.edit?(okToFinish()?4:3):2; }
-function go(i){ state.step=i; state.sel=null; render(); window.scrollTo({top:0}); }
+function go(i){ state.step=i; state.sel=null; state.sizing=false; if(document.activeElement) document.activeElement.blur(); render(); window.scrollTo({top:0}); }
 
 function stagePeople(st){
   st.innerHTML=`<h1>How many people?</h1>
@@ -490,14 +491,17 @@ function renderStatus(){
     (warn?`<button type="button" class="badge warn" data-show="warn">! ${warn} in entry</button>`:"");
   st.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>{ const kind=b.dataset.show;
     document.querySelectorAll("#plan [data-id]").forEach(g=>{ const it=items.find(i=>i.id===+g.dataset.id); if(it&&itemState(it,items)===kind) g.classList.add("pulse"); }); });
-  const d=$("done"); if(d) d.disabled=!okToFinish();
+  const d=$("done"); if(d){ const short=state.people-desks, ok=okToFinish();
+    d.classList.toggle("blocked",!ok);
+    d.textContent=ok?"Done ✓":short>0?`${short} seat${short>1?"s":""} short`:bad?`Fix ${bad} overlap${bad>1?"s":""}`:`Clear the entry`; }
 }
 function drawArrange(){
   const bar=$("bar"), s=getSel();
   if(!s){
     bar.innerHTML=`<button class="tool add" id="add" type="button">${ICON.plus} Desk</button>
       <button class="done-btn" id="done" type="button">Done ✓</button>`;
-    $("add").onclick=addDesk; $("done").onclick=()=>go(4);
+    $("add").onclick=addDesk; $("done").onclick=()=>{ if(okToFinish()) return go(4);
+      const b=$("status").querySelector(".badge.bad,.badge.warn"); if(b){ b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); b.click&&b.dataset.show&&b.click(); } };
   } else if(s.type==="desk"){
     const wide=s.w>=s.h, wi=Math.round((wide?s.w:s.h)*24)/2, di=Math.round((wide?s.h:s.w)*24)/2;
     if(state.sizing){
@@ -508,7 +512,8 @@ function drawArrange(){
     bar.innerHTML=`<button class="sizechip" id="size" type="button" aria-label="Change desk size">${inch(wi)} × ${inch(di)}″ <span aria-hidden="true">✎</span></button>
       <button class="tool" id="rot" type="button" aria-label="Rotate">${ICON.rotate}</button>
       <button class="tool" id="dup" type="button" aria-label="Duplicate">${ICON.copy}</button>
-      <button class="tool del" id="del" type="button" aria-label="Delete">${ICON.trash}</button>`;
+      <button class="tool del" id="del" type="button" aria-label="Delete">${ICON.trash}</button>
+      <button class="x" id="desel" type="button" aria-label="Deselect">✕</button>`;
     const apply=()=>{ const w=parseFloat($("sw").value)/12, d=parseFloat($("sd").value)/12; if(!(w>=2&&w<=10&&d>=1.3&&d<=4)) return;
       const cx=s.x+s.w/2, cy=s.y+s.h/2; if(s.w>=s.h){s.w=w;s.h=d;}else{s.w=d;s.h=w;} s.x=cx-s.w/2; s.y=cy-s.h/2; drawPlanOnly(); save(); };
     if(state.sizing){ $("sw").oninput=apply; $("sd").oninput=apply; [$("sw"),$("sd")].forEach(i=>i.onkeydown=e=>{ if(e.key==="Enter"){ state.sizing=false; drawArrange(); } }); }
@@ -516,10 +521,12 @@ function drawArrange(){
       $("rot").onclick=rotateSel; $("dup").onclick=dupSel; $("del").onclick=delSel; }
   } else {
     bar.innerHTML=`<button class="tool" id="dup" type="button" aria-label="Duplicate">${ICON.copy}</button>
-      <button class="tool del" id="del" type="button" aria-label="Delete">${ICON.trash}</button>`;
+      <button class="tool del" id="del" type="button" aria-label="Delete">${ICON.trash}</button>
+      <button class="x" id="desel" type="button" aria-label="Deselect">✕</button>`;
     $("dup").onclick=dupSel; $("del").onclick=delSel;
   }
-  bar.querySelectorAll(".tool[aria-label]").forEach(b=>b.title=b.getAttribute("aria-label"));
+  if($("desel")) $("desel").onclick=()=>{ state.sel=null; state.sizing=false; drawArrange(); };
+  bar.querySelectorAll(".tool[aria-label],.x").forEach(b=>b.title=b.getAttribute("aria-label"));
   drawPlanOnly();
 }
 function addDesk(){ const ed=state.edit, W=state.w/12, D=state.d/12;
@@ -552,7 +559,9 @@ function stageDone(st){
   st.innerHTML=`<h1>Your plan ✓</h1>
     <div class="summary">${Object.entries(sizes).map(([k,n])=>`<div class="chip"><b>${n}</b><span>desks ${k}</span></div>`).join("")}<div class="chip"><b>${chairs}</b><span>chairs</span></div></div>
     <div class="sheet" style="width:100%"><svg id="final" role="img" aria-label="Final floor plan"></svg></div>
-    <button class="tool" id="back" type="button">← Keep arranging</button>`;
+    <div class="bar"><button class="done-btn" id="copy" type="button">Copy shopping list</button><button class="tool" id="back" type="button">← Keep arranging</button></div>`;
+  const list=Object.entries(sizes).map(([k,n])=>`${n} × desk ${k}`).concat([`${chairs} × chair`]).join("\n");
+  $("copy").onclick=async()=>{ const b=$("copy"); try{ await navigator.clipboard.writeText(list); b.textContent="Copied ✓"; }catch(e){ b.textContent=list.replace(/\n/g," · "); } };
   const svg=$("final"); drawRoom(svg,false); drawItems(svg,items,{});
   $("back").onclick=()=>go(3);
 }
