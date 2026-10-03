@@ -1,0 +1,613 @@
+<title>Upstairs Desk Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: drafting-table tool — controls strip, plan sheet beside a notes column, then the measured room and a fit matrix */
+:root{
+  --paper:#f3f4f1; --sheet:#fbfbf9; --ink:#1d2a33; --muted:#5d6b73; --grid:#dfe3e0; --rule:#c9cfcc;
+  --desk:#2f6f8f; --desk-fill:#d6e6ee; --chair:#8a9aa3; --zone:#2f6f8f;
+  --ok:#2e7d4f; --ok-bg:#dcefe3; --warn:#a8650f; --warn-bg:#f6e8d2; --bad:#b03a2e; --bad-bg:#f5dcd8;
+  --hatch:#b7bfbb; --spare:#9aa6ad;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#12181c; --sheet:#182127; --ink:#e3e9ec; --muted:#93a2aa; --grid:#24303700; --rule:#33424b;
+  --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#6f828c; --zone:#7fbbd8;
+  --ok:#6cc595; --ok-bg:#16301f; --warn:#e0a24f; --warn-bg:#33270f; --bad:#ef7b6e; --bad-bg:#3a1a16;
+  --hatch:#3c4a52; --spare:#5f6f78; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12181c; --sheet:#182127; --ink:#e3e9ec; --muted:#93a2aa; --grid:#243037; --rule:#33424b;
+  --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#6f828c; --zone:#7fbbd8;
+  --ok:#6cc595; --ok-bg:#16301f; --warn:#e0a24f; --warn-bg:#33270f; --bad:#ef7b6e; --bad-bg:#3a1a16;
+  --hatch:#3c4a52; --spare:#5f6f78; color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--grid:#243037}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:22px}
+header{display:grid;gap:4px}
+.eyebrow{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--muted);font-weight:600}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,4.4vw,44px);line-height:1.05;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0;letter-spacing:.01em}
+p{margin:0}
+.lede{color:var(--muted);max-width:68ch}
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:end;padding:14px 16px;background:var(--sheet);border:1px solid var(--rule);border-radius:6px}
+.field{display:grid;gap:4px}
+.field label{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--muted);font-weight:600}
+select,input{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:6px 8px}
+input[type=number]{width:84px;font-family:var(--f-mono);font-size:14px}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--desk);outline-offset:2px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{font:inherit;font-family:var(--f-display);font-weight:600;font-size:16px;letter-spacing:.02em;cursor:pointer;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);padding:7px 12px;border-radius:4px;display:flex;gap:8px;align-items:center}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tab .n{font-family:var(--f-mono);font-size:12px;opacity:.75}
+.main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:1fr}}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:10px;overflow-x:auto}
+.sheet svg{display:block;width:100%;height:auto;min-width:320px}
+.notes{display:grid;gap:16px;min-width:0}
+.status{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font-family:var(--f-mono);font-size:12.5px;padding:4px 9px;border-radius:999px;border:1px solid transparent}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.info{border-color:var(--rule);color:var(--muted)}
+.notes ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.k{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.sw{width:16px;height:11px;border-radius:2px;display:inline-block}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;display:grid;gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:left;white-space:nowrap}
+th{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:12.5px;color:var(--muted);font-weight:600}
+td.c{font-family:var(--f-mono);text-align:center;cursor:pointer;font-variant-numeric:tabular-nums}
+td.c:hover{outline:1px solid var(--desk)}
+td.c.ok{color:var(--ok);font-weight:600}
+td.c.warn{color:var(--warn)}
+td.c.bad{color:var(--bad)}
+td.c.on{background:var(--desk-fill)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px}
+dt{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
+dd{margin:0;color:var(--muted)}
+.small{font-size:13px;color:var(--muted)}
+svg text{font-family:var(--f-display)}
+.editbar,.toolbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+.toolbar{padding:10px 12px;background:var(--sheet);border:1px solid var(--rule);border-radius:6px}
+.btn{font:inherit;font-weight:500;font-size:14px;cursor:pointer;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);padding:6px 12px;border-radius:4px}
+.btn:hover:not(:disabled){border-color:var(--desk)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--desk);border-color:var(--desk);color:var(--sheet)}
+.btn.danger{color:var(--bad)}
+.btn.ghost{background:transparent}
+.chk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);cursor:pointer}
+.sheet.editing svg{touch-action:none;cursor:default}
+.sheet.editing [data-id]{cursor:grab}
+.sheet.editing [data-id]:active{cursor:grabbing}
+.selpanel{display:grid;gap:10px;padding:12px 14px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet)}
+.selpanel .row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.meas{display:grid;grid-template-columns:repeat(4,auto);gap:2px 14px;font-family:var(--f-mono);font-size:13px;justify-content:start}
+.meas b{font-family:var(--f-display);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Upstairs office · drawn to scale from your sketch</div>
+    <h1>Upstairs Desk Plan</h1>
+    <p class="lede">Five ways to seat about ten people in the upstairs room. Pick a desk size and every layout redraws to scale. A desk only counts if it and its chair space fit clear of the walls, the doorway and the stair landing.</p>
+  </header>
+
+  <div class="controls">
+    <div class="field">
+      <label for="preset">Desk</label>
+      <select id="preset"></select>
+    </div>
+    <div class="field">
+      <label for="dw">Width (in)</label>
+      <input id="dw" type="number" min="30" max="96" step="0.5">
+    </div>
+    <div class="field">
+      <label for="dd">Depth (in)</label>
+      <input id="dd" type="number" min="18" max="40" step="0.5">
+    </div>
+    <div class="field">
+      <label for="target">People</label>
+      <input id="target" type="number" min="1" max="16" step="1" value="10">
+    </div>
+    <p class="small" style="flex:1;min-width:220px">Check the width × depth on each product page and type it in. The plan allows 3 ft behind every desk for the chair.</p>
+  </div>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="editbar">
+    <button class="btn primary" id="editToggle" type="button">Move desks myself</button>
+    <span class="small" id="editHint">Starts from the layout shown. Drag any desk or chair.</span>
+  </div>
+  <div class="toolbar" id="toolbar" hidden>
+    <button class="btn" id="addDesk" type="button">+ Desk &amp; chair</button>
+    <button class="btn" id="addChair" type="button">+ Chair</button>
+    <button class="btn" id="rotBtn" type="button" disabled>Rotate (R)</button>
+    <button class="btn" id="dupBtn" type="button" disabled>Duplicate (D)</button>
+    <button class="btn danger" id="delBtn" type="button" disabled>Delete</button>
+    <label class="chk" for="snap"><input id="snap" type="checkbox" checked> Snap to 3″</label>
+    <button class="btn ghost" id="resetBtn" type="button">Reset to layout</button>
+  </div>
+
+  <div class="main">
+    <div class="sheet"><svg id="plan" role="img" aria-label="Floor plan"></svg></div>
+    <div class="notes" id="editNotes" hidden>
+      <div>
+        <h2>Your arrangement</h2>
+        <p class="small" style="margin-top:4px">Drag pieces to move them. A desk carries its chair with it, and you can drag a chair on its own. Click a piece to select it; the arrows nudge it 1″ (hold Shift for 6″). Measurements show the clear space from the selected piece to the nearest wall or furniture on each side.</p>
+      </div>
+      <div class="status" id="editStatus"></div>
+      <div id="selPanel" class="selpanel"></div>
+      <div><div class="k">Spacing rules of thumb</div><ul>
+        <li>36″ behind a desk to pull a chair out and sit</li>
+        <li>44–48″ when someone needs to walk behind a seated person</li>
+        <li>60″ between desks whose chairs sit back to back</li>
+        <li>36″ minimum for the main walkway to the stairs and door</li>
+      </ul></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--desk-fill);border:1px solid var(--desk)"></i>Desk</span>
+        <span><i class="sw" style="background:var(--bad-bg);border:1px solid var(--bad)"></i>Hits a wall or furniture</span>
+        <span><i class="sw" style="background:var(--warn-bg);border:1px solid var(--warn)"></i>In the keep-clear entry</span>
+      </div>
+    </div>
+    <div class="notes" id="layoutNotes">
+      <div>
+        <h2 id="lname"></h2>
+        <p id="lsum" class="small" style="margin-top:4px"></p>
+      </div>
+      <div class="status" id="status"></div>
+      <div><div class="k">Good for</div><ul id="pros"></ul></div>
+      <div><div class="k">Watch out for</div><ul id="cons"></ul></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--desk-fill);border:1px solid var(--desk)"></i>Desk</span>
+        <span><i class="sw" style="border:1px dashed var(--zone)"></i>Chair space (3 ft)</span>
+        <span><i class="sw" style="border:1px dashed var(--spare)"></i>Spare spot</span>
+        <span><i class="sw" style="background:var(--bad-bg);border:1px solid var(--bad)"></i>Keep clear</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h2>Desks that fit</h2>
+      <p class="small">How many desks each layout fits for each desk size. Click a number to open it.</p>
+      <div class="tbl-wrap"><table id="matrix"></table></div>
+    </div>
+    <div class="panel">
+      <h2>How I read your sketch</h2>
+      <p class="small">I read your numbers as feet.inches, so 17.8 means 17′ 8″. Tell me if any of these are wrong and I'll redraw.</p>
+      <dl>
+        <dt>17′ 8″ × 23′ 3″</dt><dd>Main room, width × depth</dd>
+        <dt>4′ × 5″</dt><dd>Ledge or heater on the top-left wall. I took this to be under the window.</dd>
+        <dt>1′ 8″ × 1′ 4½″</dt><dd>Wall jog in the top-right corner</dd>
+        <dt>1′ 2½″ × 8″</dt><dd>Column on the right wall, about 14½ ft down. I placed it from the sketch.</dd>
+        <dt>10′ 4″</dt><dd>Wall above the stairs, bottom right</dd>
+        <dt>5′ 8″</dt><dd>Door alcove on the left wall, about 2¾ ft deep, with a door that swings in</dd>
+        <dt>8′ 2″ / 4′ 2½″</dt><dd>Lower-left area by the stair landing. 8′ 2″ plus 10′ 4″ is wider than 17′ 8″, so I drew it 7′ 4″ wide. I treated it as the entry walkway and kept it clear.</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const R = 17 + 8/12, L = 23 + 3/12, LW = R - (10 + 4/12), C = 3;
+const WING = 25.3, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
+const OBST = [
+  {x:R-(1+8/12), y:0, w:1+8/12, h:1.375, label:"jog"},
+  {x:R-8/12, y:14.5, w:8/12, h:1+2.5/12, label:"column"},
+  {x:0, y:0, w:4, h:5/12, label:"ledge"}
+];
+const KEEP = [
+  {x:0, y:AL0, w:3.5, h:WING-AL0},
+  {x:0, y:21.8, w:LW, h:WING-21.8}
+];
+const PRESETS = [
+  {id:"c48", name:"Compact 48 × 24", w:48, d:24},
+  {id:"s55", name:"Standard 55 × 24", w:55, d:24},
+  {id:"m60", name:"Wide 60 × 30", w:60, d:30},
+  {id:"ute", name:"IKEA UTESPELARE 63 × 31½", w:63, d:31.5},
+  {id:"custom", name:"Custom size", w:null, d:null}
+];
+
+const H = (x,y,f)=>({x,y,o:"h",f}), V = (x,y,f)=>({x,y,o:"v",f});
+const LAYOUTS = [
+  { id:"perimeter", name:"Perimeter ring + island",
+    sum:"Desks along the side and top walls, all facing the wall, with a back-to-back pair in the middle. The center stays open.",
+    pros:["Everyone gets a wall behind their monitor, so cables are easy to run and screens aren't on show","Open center works for a standing huddle","Easy to add or drop one desk"],
+    cons:["People sit with their backs to the room","The column on the right wall splits that row"],
+    build(W,D){ const c=[];
+      for(let y=0.6;y+W<=AL0-0.2;y+=W) c.push(V(0,y,"e"));
+      for(let y=1.5;y+W<=14.4;y+=W) c.push(V(R-D,y,"w"));
+      for(let y=16.0;y+W<=L;y+=W) c.push(V(R-D,y,"w"));
+      for(let x=D+C;x+W<=R-D-C;x+=W) c.push(H(x,0.45,"s"));
+      const span=R-2*D-2*C, cols=Math.max(0,Math.floor((span-1)/W)), x0=(R-cols*W)/2;
+      for(let y=0.45+D+5;y+2*D+C<=21.8;y+=2*D+5) for(let i=0;i<cols;i++){c.push(H(x0+i*W,y,"n"));c.push(H(x0+i*W,y+D,"s"));}
+      for(let x=LW+0.25;x+W<=R-D-C;x+=W) c.push(H(x,L-D,"n"));
+      return {c, aisle:{w:(span-cols*W)/2, label:"walkway each side of the island"}};
+    }},
+  { id:"pods", name:"Two pods of four + wall row",
+    sum:"Two clusters of four desks on the left, back to back in pairs, plus a single row on the right wall facing it.",
+    pros:["Pods suit small teams that talk all day","Wall row on the right gives 2–3 quieter seats","A clear walkway runs from the entry to every seat"],
+    cons:["People in a pod face each other across the desks, so desks may need privacy screens","Pod desks in the middle need floor boxes or cable trays for power"],
+    build(W,D){ const c=[], pitch=2*D+4.75;
+      for(let y=0.45+C;y+2*D+C<=AL0;y+=pitch){ c.push(H(0,y,"n"),H(W,y,"n"),H(0,y+D,"s"),H(W,y+D,"s")); }
+      for(let y=1.5;y+W<=14.4;y+=W) c.push(V(R-D,y,"w"));
+      for(let y=16.0;y+W<=L;y+=W) c.push(V(R-D,y,"w"));
+      const ax=2*W, aw=R-D-C-ax;
+      return {c, aisle:{w:aw, label:"center walkway", rect:{x:ax,y:0.6,w:Math.max(aw,0),h:21}}};
+    }},
+  { id:"rows", name:"Classroom rows",
+    sum:"Rows of desks all facing the window wall, with a walkway down the right side.",
+    pros:["Nobody faces anyone else's screen","Simple to wire: one power run per row","Looks orderly, and you can see the whole room from the back"],
+    cons:["People in back rows walk behind others to reach their seats","The bottom row loses seats to the entry area"],
+    build(W,D){ const c=[], per=Math.max(1,Math.floor((R-3)/W));
+      for(let y=0.5;y+D+C<=L;y+=D+3.5) for(let i=0;i<per;i++) c.push(H(i*W,y,"s"));
+      const aw=R-per*W;
+      return {c, aisle:{w:aw, label:"side walkway", rect:{x:per*W,y:0.6,w:aw,h:L-0.6}}};
+    }},
+  { id:"spine", name:"Wall row + center spine",
+    sum:"One row on the left wall plus a long double row of back-to-back desks down the middle. The walkway runs along the right wall.",
+    pros:["Fits the most desks in this room","The spine shares one power and data run","The walkway is clear and straight from the stairs"],
+    cons:["Chairs on the left sit back to back with only about 5½ ft between desks","Feels denser and less private"],
+    build(W,D){ const c=[];
+      for(let y=0.6;y+W<=AL0-0.2;y+=W) c.push(V(0,y,"e"));
+      const sx=D+5.5;
+      for(let y=0.45;y+W<=21.8;y+=W){ c.push(V(sx,y,"w"),V(sx+D,y,"e")); }
+      const ax=sx+2*D+C, aw=R-ax;
+      return {c, aisle:{w:aw, label:"right-wall walkway", rect:{x:ax,y:0.6,w:Math.max(aw,0),h:L-0.6}}};
+    }},
+  { id:"benches", name:"Two long benches",
+    sum:"Two benches run across the room, each with a row of desks on both sides. It's a trading-floor style layout.",
+    pros:["Seats a lot of people","Two long tables make a tidy, modern look","Short power runs inside each bench"],
+    cons:["Least privacy: everyone faces someone","Middle seats are hard to reach once chairs are pushed back"],
+    build(W,D){ const c=[], per=Math.max(1,Math.floor((R-3)/W)), pitch=2*D+4.75;
+      for(let y=0.45+C;y+2*D+C<=L;y+=pitch) for(let i=0;i<per;i++){ c.push(H(i*W,y,"n"),H(i*W,y+D,"s")); }
+      const aw=R-per*W;
+      return {c, aisle:{w:aw, label:"side walkway", rect:{x:per*W,y:0.6,w:aw,h:L-0.6}}};
+    }}
+];
+
+const E=0.01;
+const ov=(a,b)=>a.x<b.x+b.w-E&&b.x<a.x+a.w-E&&a.y<b.y+b.h-E&&b.y<a.y+a.h-E;
+const inside=r=>r.x>=-E&&r.y>=-E&&r.x+r.w<=R+E&&r.y+r.h<=L+E;
+const blocked=r=>OBST.some(o=>ov(r,o))||KEEP.some(k=>ov(r,k));
+function zone(d,f){ return f==="n"?{x:d.x,y:d.y-C,w:d.w,h:C}:f==="s"?{x:d.x,y:d.y+d.h,w:d.w,h:C}:f==="e"?{x:d.x+d.w,y:d.y,w:C,h:d.h}:{x:d.x-C,y:d.y,w:C,h:d.h}; }
+function gap(a,b){ const gx=Math.max(b.x-(a.x+a.w),a.x-(b.x+b.w),0), gy=Math.max(b.y-(a.y+a.h),a.y-(b.y+b.h),0); return Math.max(gx,gy); }
+
+function solve(lay,W,D){
+  const {c,aisle}=lay.build(W,D), acc=[];
+  for(const k of c){
+    const desk=k.o==="h"?{x:k.x,y:k.y,w:W,h:D}:{x:k.x,y:k.y,w:D,h:W};
+    const chair=zone(desk,k.f);
+    if(!inside(desk)||!inside(chair)||blocked(desk)||blocked(chair)) continue;
+    if(aisle.rect&&ov(desk,aisle.rect)) continue;
+    if(acc.some(a=>ov(desk,a.desk)||ov(desk,a.chair)||ov(chair,a.desk))) continue;
+    acc.push({desk,chair,f:k.f});
+  }
+  let tight=Infinity;
+  for(let i=0;i<acc.length;i++) for(let j=i+1;j<acc.length;j++){
+    if(ov(acc[i].chair,acc[j].chair)){ tight=Math.min(tight,gap(acc[i].desk,acc[j].desk)); }
+  }
+  return {seats:acc,aisle,tight};
+}
+
+const fmt=ft=>{ let f=Math.floor(ft+1e-6), i=Math.round((ft-f)*12*2)/2; if(i>=12){f++;i-=12;} return i?`${f}′ ${String(i).replace(".5","½")}″`:`${f}′`; };
+
+const $=id=>document.getElementById(id);
+const state={preset:"s55",w:55,d:24,target:10,layout:0};
+try{ const s=JSON.parse(localStorage.getItem("deskplan")||"null"); if(s) Object.assign(state,s); }catch(e){}
+const save=()=>{ try{ localStorage.setItem("deskplan",JSON.stringify(state)); }catch(e){} };
+
+PRESETS.forEach(p=>{ const o=document.createElement("option"); o.value=p.id; o.textContent=p.name; $("preset").appendChild(o); });
+LAYOUTS.forEach((l,i)=>{ const b=document.createElement("button"); b.className="tab"; b.role="tab"; b.id="tab-"+l.id;
+  b.innerHTML=`<span>${l.name}</span><span class="n"></span>`; b.onclick=()=>{state.layout=i;state.editing=false;render();}; $("tabs").appendChild(b); });
+
+$("preset").onchange=e=>{ const p=PRESETS.find(p=>p.id===e.target.value); state.preset=p.id; if(p.w){state.w=p.w;state.d=p.d;} render(); };
+$("dw").oninput=e=>{ const v=parseFloat(e.target.value); if(v>=24&&v<=120){state.w=v;state.preset=matchPreset();render(false);} };
+$("dd").oninput=e=>{ const v=parseFloat(e.target.value); if(v>=16&&v<=48){state.d=v;state.preset=matchPreset();render(false);} };
+$("target").oninput=e=>{ const v=parseInt(e.target.value,10); if(v>=1&&v<=20){state.target=v;render(false);} };
+function matchPreset(){ const p=PRESETS.find(p=>p.w===state.w&&p.d===state.d); return p?p.id:"custom"; }
+
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(text!=null) e.textContent=text; parent&&parent.appendChild(e); return e; }
+
+function drawPlan(res,W,D){
+  const svg=$("plan"); svg.innerHTML="";
+  const vb={x:-4.6,y:-2.4,w:24.2,h:32.2};
+  svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  const defs=el("defs",{},svg);
+  const pat=el("pattern",{id:"hatch",width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
+  el("line",{x1:0,y1:0,x2:0,y2:0.5,stroke:"var(--hatch)","stroke-width":0.12},pat);
+  const pat2=el("pattern",{id:"keep",width:0.6,height:0.6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(-45)"},defs);
+  el("line",{x1:0,y1:0,x2:0,y2:0.6,stroke:"var(--bad)","stroke-width":0.06,opacity:0.6},pat2);
+
+  // 1 ft grid inside main room
+  const g=el("g",{stroke:"var(--grid)","stroke-width":0.03},svg);
+  for(let x=1;x<R;x++) el("line",{x1:x,y1:0,x2:x,y2:L},g);
+  for(let y=1;y<L;y++) el("line",{x1:0,y1:y,x2:R,y2:y},g);
+
+  // stairs + landing (outside room)
+  el("rect",{x:LW,y:L,width:R-LW,height:4.8,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
+  for(let x=LW+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:L+4.8,stroke:"var(--muted)","stroke-width":0.05},svg);
+  el("text",{x:(LW+R)/2,y:L+2.7,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS ↓");
+  el("rect",{x:0,y:WING,width:3.4,height:L+4.8-WING,fill:"url(#hatch)",stroke:"var(--muted)","stroke-width":0.05},svg);
+  el("text",{x:1.7,y:WING+1.6,"text-anchor":"middle","font-size":0.42,fill:"var(--muted)"},svg,"shaded");
+  el("text",{x:1.7,y:WING+2.1,"text-anchor":"middle","font-size":0.42,fill:"var(--muted)"},svg,"on sketch");
+  el("text",{x:(3.4+LW)/2,y:WING+1.8,"text-anchor":"middle","font-size":0.5,fill:"var(--muted)"},svg,"LANDING");
+
+  // keep-clear zones
+  KEEP.forEach(k=>el("rect",{x:k.x,y:k.y,width:k.w,height:k.h,fill:"url(#keep)",stroke:"var(--bad)","stroke-width":0.04,"stroke-dasharray":"0.2 0.15"},svg));
+  el("text",{x:LW/2+0.9,y:23.9,"text-anchor":"middle","font-size":0.5,fill:"var(--bad)"},svg,"ENTRY · KEEP CLEAR");
+
+  // aisle
+  if(!state.editing&&res&&res.aisle.rect&&res.aisle.rect.w>0){ const a=res.aisle.rect;
+    el("rect",{x:a.x,y:a.y,width:a.w,height:a.h,fill:"var(--ok-bg)",opacity:0.55},svg);
+  }
+
+  // walls
+  const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-2.75 V${AL0} H0 Z`;
+  el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":0.2,"stroke-linejoin":"miter"},svg);
+  // door swing in alcove
+  const dy0=AL0+1.4, dl=2.75;
+  el("path",{d:`M-2.75,${dy0} L-0.05,${dy0} A${dl},${dl} 0 0 1 -2.75,${dy0+dl}`,fill:"none",stroke:"var(--muted)","stroke-width":0.05},svg);
+  el("text",{x:-1.4,y:AL0-0.3,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"DOOR");
+  // ledge, jog, column
+  OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:"url(#hatch)",stroke:"var(--ink)","stroke-width":0.05},svg));
+  el("text",{x:2,y:1.0,"text-anchor":"middle","font-size":0.42,fill:"var(--muted)"},svg,"window ledge 4′ × 5″");
+
+  // dimensions
+  const dim=(x1,y1,x2,y2,t,rot)=>{ el("line",{x1,y1,x2,y2,stroke:"var(--muted)","stroke-width":0.04},svg);
+    const mx=(x1+x2)/2,my=(y1+y2)/2; const tx=el("text",{x:mx,y:my-0.18,"text-anchor":"middle","font-size":0.6,fill:"var(--ink)","font-weight":600},svg,t);
+    if(rot) tx.setAttribute("transform",`rotate(-90 ${mx} ${my})`); };
+  dim(0,-1,R,-1,fmt(R)); el("line",{x1:0,y1:-1.3,x2:0,y2:-0.7,stroke:"var(--muted)","stroke-width":0.04},svg); el("line",{x1:R,y1:-1.3,x2:R,y2:-0.7,stroke:"var(--muted)","stroke-width":0.04},svg);
+  dim(-3.7,0,-3.7,L,fmt(L),true); el("line",{x1:-4,y1:0,x2:-3.4,y2:0,stroke:"var(--muted)","stroke-width":0.04},svg); el("line",{x1:-4,y1:L,x2:-3.4,y2:L,stroke:"var(--muted)","stroke-width":0.04},svg);
+  el("text",{x:(LW+R)/2,y:L-0.25,"text-anchor":"middle","font-size":0.5,fill:"var(--muted)"},svg,"10′ 4″");
+
+  // seats
+  if(state.editing) drawEdit(svg);
+  else res.seats.forEach((s,i)=>{
+    const spare=i>=state.target, col=spare?"var(--spare)":"var(--desk)";
+    const z=s.chair;
+    el("rect",{x:z.x,y:z.y,width:z.w,height:z.h,fill:"none",stroke:col,"stroke-width":0.04,"stroke-dasharray":"0.18 0.14",opacity:0.7},svg);
+    const d=s.desk;
+    el("rect",{x:d.x,y:d.y,width:d.w,height:d.h,fill:spare?"none":"var(--desk-fill)",stroke:col,"stroke-width":0.08,"stroke-dasharray":spare?"0.3 0.15":"none"},svg);
+    const cx=s.f==="e"?d.x+d.w+1.1:s.f==="w"?d.x-1.1:d.x+d.w/2, cy=s.f==="s"?d.y+d.h+1.1:s.f==="n"?d.y-1.1:d.y+d.h/2;
+    el("circle",{cx,cy,r:0.75,fill:"var(--sheet)",stroke:spare?"var(--spare)":"var(--chair)","stroke-width":0.07},svg);
+    el("text",{x:d.x+d.w/2,y:d.y+d.h/2+0.25,"text-anchor":"middle","font-size":0.75,"font-weight":700,fill:col},svg,spare?"+":String(i+1));
+  });
+
+  // scale bar
+  const sx=R-5, sy=L+5.6;
+  for(let i=0;i<5;i++) el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
+  el("text",{x:sx,y:sy+0.85,"font-size":0.45,fill:"var(--muted)"},svg,"0");
+  el("text",{x:sx+5,y:sy+0.85,"font-size":0.45,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
+  el("text",{x:-4.4,y:L+5.9,"font-size":0.5,fill:"var(--muted)"},svg,state.editing?"Your arrangement · 1 square = 1 ft":`Desk ${state.w}″ × ${state.d}″ · 1 square = 1 ft`);
+}
+
+/* ---------- edit mode: drag, rotate, add, delete ---------- */
+const CHAIR_IN=26;
+const UNION=[{x:0,y:0,w:R,h:L},{x:0,y:0,w:LW,h:WING}];
+const inUnion=r=>UNION.some(u=>r.x>=u.x-E&&r.y>=u.y-E&&r.x+r.w<=u.x+u.w+E&&r.y+r.h<=u.y+u.h+E);
+function rectOf(it){ if(it.type==="desk") return {x:it.x,y:it.y,w:it.w,h:it.h}; const r=it.dia/24; return {x:it.x-r,y:it.y-r,w:2*r,h:2*r}; }
+function circleHitsRect(c,r){ const rad=c.dia/24, nx=Math.max(r.x,Math.min(c.x,r.x+r.w)), ny=Math.max(r.y,Math.min(c.y,r.y+r.h)); return (c.x-nx)**2+(c.y-ny)**2<(rad-E)**2; }
+function hits(a,b){
+  if(a.type==="chair"&&b.type==="chair"){ const d=Math.hypot(a.x-b.x,a.y-b.y); return d<(a.dia+b.dia)/24-E; }
+  if(a.type==="chair") return circleHitsRect(a,rectOf(b));
+  if(b.type==="chair") return circleHitsRect(b,rectOf(a));
+  return ov(rectOf(a),rectOf(b));
+}
+function itemState(it,items){
+  const r=rectOf(it);
+  const obstHit=it.type==="chair"?OBST.some(o=>circleHitsRect(it,o)):OBST.some(o=>ov(r,o));
+  if(!inUnion(r)||obstHit||items.some(o=>o!==it&&hits(it,o))) return "bad";
+  if(KEEP.some(k=>ov(r,k))) return "warn";
+  return "ok";
+}
+function seedFromLayout(){
+  const W=state.w/12,D=state.d/12, res=solve(LAYOUTS[state.layout],W,D).seats.slice(0,Math.max(state.target,1));
+  const items=[]; let id=1;
+  res.forEach(s=>{ const d=s.desk;
+    items.push({id:id++,type:"desk",x:d.x,y:d.y,w:d.w,h:d.h});
+    const off=0.25+CHAIR_IN/24;
+    const cx=s.f==="e"?d.x+d.w+off:s.f==="w"?d.x-off:d.x+d.w/2, cy=s.f==="s"?d.y+d.h+off:s.f==="n"?d.y-off:d.y+d.h/2;
+    items.push({id:id++,type:"chair",x:cx,y:cy,dia:CHAIR_IN});
+  });
+  state.edit={items,sel:null,next:id,snap:state.edit?state.edit.snap:true,from:LAYOUTS[state.layout].name};
+}
+const getSel=()=>state.edit&&state.edit.items.find(i=>i.id===state.edit.sel);
+
+function measure(it,items){
+  const r=rectOf(it), others=OBST.concat(items.filter(o=>o!==it).map(rectOf));
+  const yo=b=>b.y<r.y+r.h-E&&r.y<b.y+b.h-E, xo=b=>b.x<r.x+r.w-E&&r.x<b.x+b.w-E;
+  const inWing=r.y+r.h>L+E;
+  let left=0, right=inWing?LW:R, up=0, down=(r.x+r.w<=LW+E)?WING:L;
+  others.forEach(b=>{
+    if(yo(b)){ if(b.x+b.w<=r.x+E) left=Math.max(left,b.x+b.w); if(b.x>=r.x+r.w-E) right=Math.min(right,b.x); }
+    if(xo(b)){ if(b.y+b.h<=r.y+E) up=Math.max(up,b.y+b.h); if(b.y>=r.y+r.h-E) down=Math.min(down,b.y); }
+  });
+  return {r,left:r.x-left,right:right-(r.x+r.w),up:r.y-up,down:down-(r.y+r.h),lx:left,rx:right,uy:up,dy:down};
+}
+
+function drawEdit(svg){
+  const ed=state.edit, items=ed.items;
+  const order=items.filter(i=>i.type==="desk").concat(items.filter(i=>i.type==="chair"));
+  let deskNo=0;
+  order.forEach(it=>{
+    const st=itemState(it,items), sel=it.id===ed.sel;
+    const stroke=st==="bad"?"var(--bad)":st==="warn"?"var(--warn)":(it.type==="desk"?"var(--desk)":"var(--chair)");
+    const fill=st==="bad"?"var(--bad-bg)":st==="warn"?"var(--warn-bg)":(it.type==="desk"?"var(--desk-fill)":"var(--sheet)");
+    const g=el("g",{"data-id":it.id},svg);
+    if(it.type==="desk"){
+      deskNo++;
+      el("rect",{x:it.x,y:it.y,width:it.w,height:it.h,fill,stroke,"stroke-width":sel?0.14:0.08},g);
+      const big=Math.min(it.w,it.h)>1.6;
+      el("text",{x:it.x+it.w/2,y:it.y+it.h/2+(big?-0.05:0.22),"text-anchor":"middle","font-size":0.7,"font-weight":700,fill:stroke,"pointer-events":"none"},g,String(deskNo));
+      if(big){ const lw=Math.round(Math.max(it.w,it.h)*12*2)/2, ld=Math.round(Math.min(it.w,it.h)*12*2)/2;
+        el("text",{x:it.x+it.w/2,y:it.y+it.h/2+0.6,"text-anchor":"middle","font-size":0.4,fill:"var(--muted)","pointer-events":"none"},g,`${lw}″×${ld}″`); }
+    } else {
+      const rad=it.dia/24;
+      el("circle",{cx:it.x,cy:it.y,r:rad,fill,stroke,"stroke-width":sel?0.12:0.07},g);
+      el("circle",{cx:it.x,cy:it.y,r:rad*0.55,fill:"none",stroke,"stroke-width":0.04,"pointer-events":"none"},g);
+    }
+    if(sel){ const r=rectOf(it); el("rect",{x:r.x-0.15,y:r.y-0.15,width:r.w+0.3,height:r.h+0.3,fill:"none",stroke:"var(--ink)","stroke-width":0.04,"stroke-dasharray":"0.2 0.12","pointer-events":"none"},g); }
+  });
+  const s=getSel(); if(!s) return;
+  const m=measure(s,items), r=m.r, cx=r.x+r.w/2, cy=r.y+r.h/2;
+  const line=(x1,y1,x2,y2,d,vert)=>{ if(d<0.04||d>40) return;
+    el("line",{x1,y1,x2,y2,stroke:"var(--ink)","stroke-width":0.04,"pointer-events":"none"},svg);
+    [[x1,y1],[x2,y2]].forEach(([x,y])=>el("line",Object.assign(vert?{x1:x-0.2,y1:y,x2:x+0.2,y2:y}:{x1:x,y1:y-0.2,x2:x,y2:y+0.2},{stroke:"var(--ink)","stroke-width":0.04,"pointer-events":"none"}),svg));
+    const mx=(x1+x2)/2,my=(y1+y2)/2, t=`${Math.round(d*12)}″`, tw=0.32*t.length+0.2;
+    el("rect",{x:mx-tw/2,y:my-0.34,width:tw,height:0.62,rx:0.12,fill:"var(--ink)","pointer-events":"none"},svg);
+    el("text",{x:mx,y:my+0.12,"text-anchor":"middle","font-size":0.46,"font-weight":600,fill:"var(--sheet)","pointer-events":"none"},svg,t);
+  };
+  line(m.lx,cy,r.x,cy,m.left,false); line(r.x+r.w,cy,m.rx,cy,m.right,false);
+  line(cx,m.uy,cx,r.y,m.up,true); line(cx,r.y+r.h,cx,m.dy,m.down,true);
+}
+
+function renderEditPanel(){
+  const ed=state.edit, items=ed.items, desks=items.filter(i=>i.type==="desk"), chairs=items.filter(i=>i.type==="chair");
+  const bad=items.filter(i=>itemState(i,items)==="bad").length, warn=items.filter(i=>itemState(i,items)==="warn").length;
+  const st=[`<span class="pill ${desks.length>=state.target?"ok":"warn"}">${desks.length} desks · ${chairs.length} chairs</span>`];
+  st.push(bad?`<span class="pill bad">${bad} piece${bad>1?"s":""} overlapping</span>`:`<span class="pill ok">no overlaps</span>`);
+  if(warn) st.push(`<span class="pill warn">${warn} in the entry area</span>`);
+  st.push(`<span class="pill info">started from: ${ed.from}</span>`);
+  $("editStatus").innerHTML=st.join("");
+  const s=getSel(), p=$("selPanel");
+  ["rotBtn","dupBtn","delBtn"].forEach(b=>$(b).disabled=!s);
+  if(!s){ p.innerHTML=`<p class="small">Nothing selected. Click a desk or chair to see its size and the clear space around it.</p>`; return; }
+  const m=measure(s,items), f=d=>`${Math.round(d*12)}″`;
+  const meas=`<div class="meas"><b>Left</b><b>Right</b><b>Above</b><b>Below</b><span>${f(m.left)}</span><span>${f(m.right)}</span><span>${f(m.up)}</span><span>${f(m.down)}</span></div>`;
+  const stt=itemState(s,items), note=stt==="bad"?`<span class="pill bad">overlaps a wall or another piece</span>`:stt==="warn"?`<span class="pill warn">sits in the entry walkway</span>`:"";
+  if(s.type==="desk"){
+    const wide=s.w>=s.h, wi=Math.round((wide?s.w:s.h)*12*2)/2, di=Math.round((wide?s.h:s.w)*12*2)/2;
+    p.innerHTML=`<div class="k">Selected desk</div><div class="row">
+      <div class="field"><label for="sw">Width (in)</label><input id="sw" type="number" min="24" max="120" step="0.5" value="${wi}"></div>
+      <div class="field"><label for="sd">Depth (in)</label><input id="sd" type="number" min="16" max="48" step="0.5" value="${di}"></div>
+      ${note}</div><div class="k" style="margin:0">Clear space to nearest wall or furniture</div>${meas}`;
+    const apply=()=>{ const w=parseFloat($("sw").value)/12, d=parseFloat($("sd").value)/12; if(!(w>=2&&w<=10&&d>=1.3&&d<=4)) return;
+      const cx=s.x+s.w/2, cy=s.y+s.h/2; if(s.w>=s.h){s.w=w;s.h=d;}else{s.w=d;s.h=w;} s.x=cx-s.w/2; s.y=cy-s.h/2; drawOnly(); };
+    $("sw").oninput=apply; $("sd").oninput=apply;
+  } else {
+    p.innerHTML=`<div class="k">Selected chair</div><div class="row">
+      <div class="field"><label for="cd">Chair width (in)</label><input id="cd" type="number" min="16" max="36" step="0.5" value="${s.dia}"></div>
+      ${note}</div><div class="k" style="margin:0">Clear space to nearest wall or furniture</div>${meas}
+      <p class="small">Office chairs are usually 24–28″ wide. Leave about 36″ between the desk edge and whatever is behind the chair.</p>`;
+    $("cd").oninput=()=>{ const v=parseFloat($("cd").value); if(v>=16&&v<=36){ s.dia=v; drawOnly(); } };
+  }
+}
+function drawOnly(){ drawPlan(null); renderEditPanel(); save(); }
+
+function svgPoint(evt){ const svg=$("plan"), pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+const snapv=v=>state.edit.snap?Math.round(v*4)/4:v;
+let drag=null;
+$("plan").addEventListener("pointerdown",e=>{
+  if(!state.editing) return;
+  const g=e.target.closest("[data-id]");
+  if(!g){ state.edit.sel=null; drawOnly(); return; }
+  const it=state.edit.items.find(i=>i.id===+g.dataset.id); if(!it) return;
+  state.edit.sel=it.id; const p=svgPoint(e);
+  const kids=it.type==="desk"?chairsOf(it).map(c=>({c,ox:c.x-it.x,oy:c.y-it.y})):[];
+  drag={it,dx:p.x-it.x,dy:p.y-it.y,id:e.pointerId,kids};
+  $("plan").setPointerCapture(e.pointerId); e.preventDefault(); drawOnly();
+});
+$("plan").addEventListener("pointermove",e=>{
+  if(!drag||e.pointerId!==drag.id) return;
+  const p=svgPoint(e); drag.it.x=snapv(p.x-drag.dx); drag.it.y=snapv(p.y-drag.dy);
+  drag.kids.forEach(k=>{ k.c.x=drag.it.x+k.ox; k.c.y=drag.it.y+k.oy; });
+  drawPlan(null); renderEditPanel();
+});
+const endDrag=e=>{ if(drag&&e.pointerId===drag.id){ drag=null; save(); } };
+$("plan").addEventListener("pointerup",endDrag);
+$("plan").addEventListener("pointercancel",endDrag);
+
+function chairsOf(desk){
+  const desks=state.edit.items.filter(i=>i.type==="desk");
+  const dist=(c,d)=>{ const nx=Math.max(d.x,Math.min(c.x,d.x+d.w)), ny=Math.max(d.y,Math.min(c.y,d.y+d.h)); return Math.hypot(c.x-nx,c.y-ny); };
+  return state.edit.items.filter(c=>c.type==="chair"&&dist(c,desk)<=c.dia/24+1.25&&desks.every(d=>d===desk||dist(c,d)>=dist(c,desk)));
+}
+function rotateSel(){ const s=getSel(); if(!s||s.type!=="desk") return; const cx=s.x+s.w/2, cy=s.y+s.h/2;
+  chairsOf(s).forEach(c=>{ const dx=c.x-cx, dy=c.y-cy; c.x=cx-dy; c.y=cy+dx; });
+  [s.w,s.h]=[s.h,s.w]; s.x=snapv(cx-s.w/2); s.y=snapv(cy-s.h/2); drawOnly(); }
+function dupSel(){ const s=getSel(); if(!s) return; const c=Object.assign({},s,{id:state.edit.next++}), dx=s.type==="desk"?s.w:s.dia/12+0.25;
+  c.x+=dx; state.edit.items.push(c);
+  if(s.type==="desk") chairsOf(s).forEach(k=>state.edit.items.push(Object.assign({},k,{id:state.edit.next++,x:k.x+dx})));
+  state.edit.sel=c.id; drawOnly(); }
+function delSel(){ const s=getSel(); if(!s) return; state.edit.items=state.edit.items.filter(i=>i!==s); state.edit.sel=null; drawOnly(); }
+$("rotBtn").onclick=rotateSel; $("dupBtn").onclick=dupSel; $("delBtn").onclick=delSel;
+$("addDesk").onclick=()=>{ const ed=state.edit, W=state.w/12, D=state.d/12;
+  const d={id:ed.next++,type:"desk",x:snapv(R/2-W/2),y:snapv(9),w:W,h:D};
+  ed.items.push(d,{id:ed.next++,type:"chair",x:d.x+W/2,y:d.y+D+0.25+CHAIR_IN/24,dia:CHAIR_IN}); ed.sel=d.id; drawOnly(); };
+$("addChair").onclick=()=>{ const ed=state.edit, c={id:ed.next++,type:"chair",x:snapv(R/2),y:snapv(13),dia:CHAIR_IN}; ed.items.push(c); ed.sel=c.id; drawOnly(); };
+$("snap").onchange=e=>{ state.edit.snap=e.target.checked; save(); };
+$("resetBtn").onclick=()=>{ seedFromLayout(); drawOnly(); };
+$("editToggle").onclick=()=>{
+  if(state.edit&&state.editing){ state.editing=false; }
+  else { if(!state.edit) seedFromLayout(); state.editing=true; }
+  render();
+};
+document.addEventListener("keydown",e=>{
+  if(!state.editing||!state.edit) return;
+  if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  const s=getSel(); if(!s) return;
+  const step=(e.shiftKey?6:1)/12, mv={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]}[e.key];
+  if(mv){ (s.type==="desk"?chairsOf(s):[]).forEach(c=>{c.x+=mv[0];c.y+=mv[1];}); s.x+=mv[0]; s.y+=mv[1]; e.preventDefault(); drawOnly(); }
+  else if(e.key==="r"||e.key==="R"){ rotateSel(); e.preventDefault(); }
+  else if(e.key==="d"||e.key==="D"){ dupSel(); e.preventDefault(); }
+  else if(e.key==="Delete"||e.key==="Backspace"){ delSel(); e.preventDefault(); }
+});
+
+function render(syncInputs=true){
+  const W=state.w/12, D=state.d/12, lay=LAYOUTS[state.layout];
+  $("preset").value=state.preset;
+  if(syncInputs){ $("dw").value=state.w; $("dd").value=state.d; $("target").value=state.target; }
+  const all=LAYOUTS.map(l=>solve(l,W,D));
+  LAYOUTS.forEach((l,i)=>{ const b=$("tab-"+l.id); b.setAttribute("aria-selected",i===state.layout); b.querySelector(".n").textContent=all[i].seats.length; });
+  const res=all[state.layout];
+  const ed=!!(state.editing&&state.edit);
+  $("toolbar").hidden=!ed; $("editNotes").hidden=!ed; $("layoutNotes").hidden=ed;
+  document.querySelector(".sheet").classList.toggle("editing",ed);
+  $("editToggle").textContent=ed?"Back to the 5 layouts":(state.edit?"Resume my arrangement":"Move desks myself");
+  $("editHint").textContent=ed?"Your arrangement is saved in this browser.":(state.edit?`Picks up where you left off. Use “Reset to layout” inside to start over from ${LAYOUTS[state.layout].name}.`:"Starts from the layout shown. Drag any desk or chair.");
+  if(ed){ $("snap").checked=state.edit.snap; }
+  drawPlan(res,W,D);
+  if(ed) renderEditPanel();
+  $("lname").textContent=lay.name; $("lsum").textContent=lay.sum;
+  $("pros").innerHTML=lay.pros.map(t=>`<li>${t}</li>`).join("");
+  $("cons").innerHTML=lay.cons.map(t=>`<li>${t}</li>`).join("");
+  const n=res.seats.length, st=[];
+  if(n>=state.target) st.push(`<span class="pill ok">${n} desks fit · target ${state.target}</span>`);
+  else st.push(`<span class="pill ${n>=state.target-1?"warn":"bad"}">${n} desks fit · ${state.target-n} short of ${state.target}</span>`);
+  if(n>state.target) st.push(`<span class="pill info">${n-state.target} spare spot${n-state.target>1?"s":""}</span>`);
+  const aw=res.aisle.w;
+  st.push(`<span class="pill ${aw>=3?"ok":aw>=2.5?"warn":"bad"}">${res.aisle.label}: ${aw>0?fmt(aw):"none"}</span>`);
+  if(isFinite(res.tight)) st.push(`<span class="pill ${res.tight>=5?"ok":res.tight>=4.5?"warn":"bad"}">closest chair-to-chair desks: ${fmt(res.tight)}</span>`);
+  st.push(`<span class="pill info">${(n*W*D).toFixed(0)} sq ft of desktop</span>`);
+  $("status").innerHTML=st.join("");
+
+  // matrix
+  const rows=PRESETS.filter(p=>p.w).slice();
+  if(state.preset==="custom") rows.push({id:"custom",name:`Custom ${state.w} × ${state.d}`,w:state.w,d:state.d});
+  let h=`<tr><th>Desk</th>${LAYOUTS.map(l=>`<th>${l.name.replace(/ \+.*$/,"")}</th>`).join("")}</tr>`;
+  rows.forEach(p=>{ h+=`<tr><td>${p.name}</td>`;
+    LAYOUTS.forEach((l,i)=>{ const k=solve(l,p.w/12,p.d/12).seats.length;
+      const cls=k>=state.target?"ok":k>=state.target-1?"warn":"bad";
+      const on=p.w===state.w&&p.d===state.d&&i===state.layout?" on":"";
+      h+=`<td class="c ${cls}${on}" data-p="${p.id}" data-w="${p.w}" data-d="${p.d}" data-l="${i}" tabindex="0">${k}</td>`; });
+    h+="</tr>"; });
+  $("matrix").innerHTML=h;
+  $("matrix").querySelectorAll("td.c").forEach(td=>{ const go=()=>{ state.preset=td.dataset.p; state.w=+td.dataset.w; state.d=+td.dataset.d; state.layout=+td.dataset.l; render(); };
+    td.onclick=go; td.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();go();} }; });
+  save();
+}
+render();
+})();
+</script>
