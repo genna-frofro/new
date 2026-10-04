@@ -190,7 +190,8 @@ svg text{font-family:var(--f-display)}
         <dt>1′ 8″ × 1′ 4½″</dt><dd>Wall jog in the top-right corner</dd>
         <dt>1′ 2½″ × 8″</dt><dd>Column on the right wall, about 14½ ft down. I placed it from the sketch.</dd>
         <dt>10′ 4″</dt><dd>Wall above the stairs, bottom right</dd>
-        <dt>5′ 8″</dt><dd>Door alcove on the left wall, about 2¾ ft deep, with a door that swings in</dd>
+        <dt>5′ 8″ × 5′ 3″</dt><dd>Door alcove on the left wall, 5′ 3″ deep from the door to the wall</dd>
+        <dt>5½″ × 5½″</dt><dd>Post, 2′ 10″ out from the left wall and 5′ 2″ below the top-right jog</dd>
         <dt>8′ 2″ / 4′ 2½″</dt><dd>Lower-left area by the stair landing. 8′ 2″ plus 10′ 4″ is wider than 17′ 8″, so I drew it 7′ 4″ wide. I treated it as the entry walkway and kept it clear.</dd>
       </dl>
     </div>
@@ -202,6 +203,7 @@ svg text{font-family:var(--f-display)}
 const R = 17 + 8/12, L = 23 + 3/12, LW = R - (10 + 4/12), C = 3;
 const WING = 25.3, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
 const OBST = [
+  {x:2+10/12, y:1.375+5+2/12, w:5.5/12, h:5.5/12},
   {x:R-(1+8/12), y:0, w:1+8/12, h:1.375, label:"jog"},
   {x:R-8/12, y:14.5, w:8/12, h:1+2.5/12, label:"column"},
   {x:0, y:0, w:4, h:5/12, label:"ledge"}
@@ -322,7 +324,7 @@ function el(tag,attrs,parent,text){ const e=document.createElementNS(NS,tag); fo
 
 function drawPlan(res,W,D){
   const svg=$("plan"); svg.innerHTML="";
-  const vb={x:-4.6,y:-2.4,w:24.2,h:32.2};
+  const vb={x:-7.1,y:-2.4,w:26.7,h:32.2};
   svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const defs=el("defs",{},svg);
   const pat=el("pattern",{id:"hatch",width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
@@ -354,14 +356,15 @@ function drawPlan(res,W,D){
   }
 
   // walls
-  const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-2.75 V${AL0} H0 Z`;
+  const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-5.25 V${AL0} H0 Z`;
   el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":0.2,"stroke-linejoin":"miter"},svg);
   // door swing in alcove
   const dy0=AL0+1.4, dl=2.75;
-  el("path",{d:`M-2.75,${dy0} L-0.05,${dy0} A${dl},${dl} 0 0 1 -2.75,${dy0+dl}`,fill:"none",stroke:"var(--muted)","stroke-width":0.05},svg);
-  el("text",{x:-1.4,y:AL0-0.3,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"DOOR");
+  el("path",{d:`M-5.25,${dy0} L${-5.25+dl},${dy0} A${dl},${dl} 0 0 1 -5.25,${dy0+dl}`,fill:"none",stroke:"var(--muted)","stroke-width":0.05},svg);
+  el("text",{x:-2.6,y:AL0-0.3,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"DOOR");
   // ledge, jog, column
   OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:"url(#hatch)",stroke:"var(--ink)","stroke-width":0.05},svg));
+  el("text",{x:2+10/12+0.75,y:1.375+5+2/12+0.42,"font-size":0.5,fill:"var(--muted)"},svg,"POST");
   el("text",{x:2,y:1.0,"text-anchor":"middle","font-size":0.42,fill:"var(--muted)"},svg,"window ledge 4′ × 5″");
 
   // dimensions
@@ -369,7 +372,7 @@ function drawPlan(res,W,D){
     const mx=(x1+x2)/2,my=(y1+y2)/2; const tx=el("text",{x:mx,y:my-0.18,"text-anchor":"middle","font-size":0.6,fill:"var(--ink)","font-weight":600},svg,t);
     if(rot) tx.setAttribute("transform",`rotate(-90 ${mx} ${my})`); };
   dim(0,-1,R,-1,fmt(R)); el("line",{x1:0,y1:-1.3,x2:0,y2:-0.7,stroke:"var(--muted)","stroke-width":0.04},svg); el("line",{x1:R,y1:-1.3,x2:R,y2:-0.7,stroke:"var(--muted)","stroke-width":0.04},svg);
-  dim(-3.7,0,-3.7,L,fmt(L),true); el("line",{x1:-4,y1:0,x2:-3.4,y2:0,stroke:"var(--muted)","stroke-width":0.04},svg); el("line",{x1:-4,y1:L,x2:-3.4,y2:L,stroke:"var(--muted)","stroke-width":0.04},svg);
+  dim(-6.2,0,-6.2,L,fmt(L),true); el("line",{x1:-6.5,y1:0,x2:-5.9,y2:0,stroke:"var(--muted)","stroke-width":0.04},svg); el("line",{x1:-6.5,y1:L,x2:-5.9,y2:L,stroke:"var(--muted)","stroke-width":0.04},svg);
   el("text",{x:(LW+R)/2,y:L-0.25,"text-anchor":"middle","font-size":0.5,fill:"var(--muted)"},svg,"10′ 4″");
 
   // seats
@@ -390,7 +393,7 @@ function drawPlan(res,W,D){
   for(let i=0;i<5;i++) el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
   el("text",{x:sx,y:sy+0.85,"font-size":0.45,fill:"var(--muted)"},svg,"0");
   el("text",{x:sx+5,y:sy+0.85,"font-size":0.45,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
-  el("text",{x:-4.4,y:L+5.9,"font-size":0.5,fill:"var(--muted)"},svg,state.editing?"Your arrangement · 1 square = 1 ft":`Desk ${state.w}″ × ${state.d}″ · 1 square = 1 ft`);
+  el("text",{x:-6.9,y:L+5.9,"font-size":0.5,fill:"var(--muted)"},svg,state.editing?"Your arrangement · 1 square = 1 ft":`Desk ${state.w}″ × ${state.d}″ · 1 square = 1 ft`);
 }
 
 /* ---------- edit mode: drag, rotate, add, delete ---------- */
