@@ -192,7 +192,7 @@ svg text{font-family:var(--f-display)}
         <dt>10′ 4″</dt><dd>Wall above the stairs, bottom right</dd>
         <dt>5′ 8″ × 5′ 3″</dt><dd>Door alcove on the left wall, 5′ 3″ deep from the door to the wall</dd>
         <dt>5½″ × 5½″</dt><dd>Post, 2′ 10″ out from the left wall and 5′ 2″ below the top-right jog</dd>
-        <dt>8′ 2″ / 4′ 2½″</dt><dd>Lower-left area by the stair landing. 8′ 2″ plus 10′ 4″ is wider than 17′ 8″, so I drew it 7′ 4″ wide. I treated it as the entry walkway and kept it clear.</dd>
+        <dt>4′ 1″ × 4′ 2″</dt><dd>Phone booth in the bottom-left corner. The bottom wall runs 3′ 4″ past it and then turns up along the stairs. I kept the floor in front of it clear as the walkway.</dd>
       </dl>
     </div>
   </div>
@@ -200,9 +200,10 @@ svg text{font-family:var(--f-display)}
 
 <script>
 (function(){
-const R = 17 + 8/12, L = 23 + 3/12, LW = R - (10 + 4/12), C = 3;
-const WING = 25.3, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
+const R = 17 + 8/12, L = 23 + 3/12, LW = (4 + 1/12) + (3 + 4/12), C = 3;
+const WING = 30.0, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
 const OBST = [
+  {x:0, y:WING-(4+2/12), w:4+1/12, h:4+2/12},
   {x:2+10/12, y:1.375+5+2/12, w:5.5/12, h:5.5/12},
   {x:R-(1+8/12), y:0, w:1+8/12, h:1.375, label:"jog"},
   {x:R-8/12, y:14.5, w:8/12, h:1+2.5/12, label:"column"},
@@ -324,7 +325,7 @@ function el(tag,attrs,parent,text){ const e=document.createElementNS(NS,tag); fo
 
 function drawPlan(res,W,D){
   const svg=$("plan"); svg.innerHTML="";
-  const vb={x:-7.1,y:-2.4,w:26.7,h:32.2};
+  const vb={x:-7.1,y:-2.4,w:26.7,h:35.0};
   svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const defs=el("defs",{},svg);
   const pat=el("pattern",{id:"hatch",width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
@@ -338,17 +339,13 @@ function drawPlan(res,W,D){
   for(let y=1;y<L;y++) el("line",{x1:0,y1:y,x2:R,y2:y},g);
 
   // stairs + landing (outside room)
-  el("rect",{x:LW,y:L,width:R-LW,height:4.8,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
-  for(let x=LW+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:L+4.8,stroke:"var(--muted)","stroke-width":0.05},svg);
-  el("text",{x:(LW+R)/2,y:L+2.7,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS ↓");
-  el("rect",{x:0,y:WING,width:3.4,height:L+4.8-WING,fill:"url(#hatch)",stroke:"var(--muted)","stroke-width":0.05},svg);
-  el("text",{x:1.7,y:WING+1.6,"text-anchor":"middle","font-size":0.42,fill:"var(--muted)"},svg,"shaded");
-  el("text",{x:1.7,y:WING+2.1,"text-anchor":"middle","font-size":0.42,fill:"var(--muted)"},svg,"on sketch");
-  el("text",{x:(3.4+LW)/2,y:WING+1.8,"text-anchor":"middle","font-size":0.5,fill:"var(--muted)"},svg,"LANDING");
+  el("rect",{x:LW,y:L,width:R-LW,height:WING-L,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
+  for(let x=LW+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:WING,stroke:"var(--muted)","stroke-width":0.05},svg);
+  el("text",{x:(LW+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS ↓");
 
   // keep-clear zones
   KEEP.forEach(k=>el("rect",{x:k.x,y:k.y,width:k.w,height:k.h,fill:"url(#keep)",stroke:"var(--bad)","stroke-width":0.04,"stroke-dasharray":"0.2 0.15"},svg));
-  el("text",{x:LW/2+0.9,y:23.9,"text-anchor":"middle","font-size":0.5,fill:"var(--bad)"},svg,"ENTRY · KEEP CLEAR");
+  el("text",{x:LW/2,y:23.9,"text-anchor":"middle","font-size":0.5,fill:"var(--bad)"},svg,"ENTRY · KEEP CLEAR");
 
   // aisle
   if(!state.editing&&res&&res.aisle.rect&&res.aisle.rect.w>0){ const a=res.aisle.rect;
@@ -364,6 +361,7 @@ function drawPlan(res,W,D){
   el("text",{x:-2.6,y:AL0-0.3,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"DOOR");
   // ledge, jog, column
   OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:"url(#hatch)",stroke:"var(--ink)","stroke-width":0.05},svg));
+  ["PHONE","BOOTH"].forEach((t,k)=>el("text",{x:(4+1/12)/2,y:WING-(4+2/12)/2-0.1+k*0.6,"text-anchor":"middle","font-size":0.5,fill:"var(--ink)","font-weight":600},svg,t));
   el("text",{x:2+10/12+0.75,y:1.375+5+2/12+0.42,"font-size":0.5,fill:"var(--muted)"},svg,"POST");
   el("text",{x:2,y:1.0,"text-anchor":"middle","font-size":0.42,fill:"var(--muted)"},svg,"window ledge 4′ × 5″");
 
@@ -389,11 +387,11 @@ function drawPlan(res,W,D){
   });
 
   // scale bar
-  const sx=R-5, sy=L+5.6;
+  const sx=R-5, sy=WING+1.0;
   for(let i=0;i<5;i++) el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
   el("text",{x:sx,y:sy+0.85,"font-size":0.45,fill:"var(--muted)"},svg,"0");
   el("text",{x:sx+5,y:sy+0.85,"font-size":0.45,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
-  el("text",{x:-6.9,y:L+5.9,"font-size":0.5,fill:"var(--muted)"},svg,state.editing?"Your arrangement · 1 square = 1 ft":`Desk ${state.w}″ × ${state.d}″ · 1 square = 1 ft`);
+  el("text",{x:-6.9,y:WING+1.3,"font-size":0.5,fill:"var(--muted)"},svg,state.editing?"Your arrangement · 1 square = 1 ft":`Desk ${state.w}″ × ${state.d}″ · 1 square = 1 ft`);
 }
 
 /* ---------- edit mode: drag, rotate, add, delete ---------- */

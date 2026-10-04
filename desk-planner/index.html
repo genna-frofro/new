@@ -115,9 +115,10 @@ svg text{font-family:var(--f-display)}
 
 <script>
 (function(){
-const R = 17 + 8/12, L = 23 + 3/12, LW = R - (10 + 4/12), C = 3;
-const WING = 25.3, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
+const R = 17 + 8/12, L = 23 + 3/12, LW = (4 + 1/12) + (3 + 4/12), C = 3;
+const WING = 30.0, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
 const OBST = [
+  {x:0, y:WING-(4+2/12), w:4+1/12, h:4+2/12},
   {x:2+10/12, y:1.375+5+2/12, w:5.5/12, h:5.5/12},
   {x:R-(1+8/12), y:0, w:1+8/12, h:1.375},
   {x:R-8/12, y:14.5, w:8/12, h:1+2.5/12},
@@ -227,7 +228,7 @@ const save=()=>{ try{ localStorage.setItem("deskwiz",JSON.stringify(Object.assig
 
 /* ---------- room drawing ---------- */
 function drawRoom(svg,mini){
-  const vb=mini?{x:-5.7,y:-0.6,w:24.1,h:26.4}:{x:-5.9,y:-0.8,w:24.4,h:30.2};
+  const vb=mini?{x:-5.7,y:-0.6,w:24.1,h:31.0}:{x:-5.9,y:-0.8,w:24.4,h:33.2};
   svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const defs=el("defs",{},svg);
   const pat=el("pattern",{id:"h"+(mini?"m":""),width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
@@ -238,13 +239,12 @@ function drawRoom(svg,mini){
   // entry zone
   el("path",{d:`M0,${AL0} H3.5 V21.8 H${LW} V${WING} H0 Z`,fill:"var(--warn-bg)",opacity:mini?0.8:0.7},svg);
   // stairs
-  const sh=mini?2.2:4.6;
+  const sh=WING-L;
   el("rect",{x:LW,y:L,width:R-LW,height:sh,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
   for(let x=LW+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:L+sh,stroke:"var(--muted)","stroke-width":0.05},svg);
   if(!mini){
-    el("text",{x:(LW+R)/2,y:L+2.6,"text-anchor":"middle","font-size":0.8,fill:"var(--muted)","letter-spacing":0.3},svg,"STAIRS");
-    el("path",{d:`M${LW/2+0.6},${WING+1.6} v-1.8 m-0.5,0.5 l0.5,-0.5 l0.5,0.5`,stroke:"var(--warn)","stroke-width":0.12,fill:"none"},svg);
-    el("text",{x:LW/2+0.6,y:WING+2.5,"text-anchor":"middle","font-size":0.7,fill:"var(--warn)"},svg,"ENTRY");
+    el("text",{x:(LW+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.8,fill:"var(--muted)","letter-spacing":0.3},svg,"STAIRS");
+    el("text",{x:(4+1/12+LW)/2,y:WING-1,"text-anchor":"middle","font-size":0.5,fill:"var(--warn)"},svg,"WALKWAY");
   }
   const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-5.25 V${AL0} H0 Z`;
   el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":mini?0.28:0.2},svg);
@@ -252,11 +252,12 @@ function drawRoom(svg,mini){
   el("path",{d:`M-5.25,${dy0} L${-5.25+dl},${dy0} A${dl},${dl} 0 0 1 -5.25,${dy0+dl}`,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
   if(!mini) el("text",{x:-2.6,y:AL0-0.3,"text-anchor":"middle","font-size":0.6,fill:"var(--muted)"},svg,"DOOR");
   OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:`url(#h${mini?"m":""})`,stroke:"var(--ink)","stroke-width":0.05},svg));
+  if(!mini) ["PHONE","BOOTH"].forEach((t,k)=>el("text",{x:(4+1/12)/2,y:WING-(4+2/12)/2-0.1+k*0.6,"text-anchor":"middle","font-size":0.5,fill:"var(--ink)","font-weight":600},svg,t));
   if(!mini) el("text",{x:2+10/12+0.75,y:1.375+5+2/12+0.42,"font-size":0.5,fill:"var(--muted)"},svg,"POST");
   if(!mini){
     el("text",{x:R/2,y:-0.15,"text-anchor":"middle","font-size":0.6,fill:"var(--muted)"},svg,"17′ 8″");
     const t=el("text",{x:-0.25,y:L/2-3,"text-anchor":"middle","font-size":0.6,fill:"var(--muted)"},svg,"23′ 3″"); t.setAttribute("transform",`rotate(-90 -0.25 ${L/2-3})`);
-    const sx=R-5, sy=L+5.2;
+    const sx=R-5, sy=WING+0.9;
     for(let i=0;i<5;i++) el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
     el("text",{x:sx+5,y:sy+0.85,"font-size":0.5,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
   }
