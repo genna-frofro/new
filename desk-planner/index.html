@@ -115,8 +115,8 @@ svg text{font-family:var(--f-display)}
 
 <script>
 (function(){
-const R = 17 + 8/12, L = 23 + 3/12, LW = (4 + 1/12) + (3 + 4/12), C = 3;
-const WING = 30.0, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
+const R = 17 + 8/12, L = 23 + 3/12, LW = 7 + 8/12, C = 3;
+const WING = L + 6 + 7/12, OPEN = 2 + 10/12, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
 const OBST = [
   {x:0, y:WING-(4+2/12), w:4+1/12, h:4+2/12},
   {x:2+10/12, y:1.375+5+2/12, w:5.5/12, h:5.5/12},
@@ -240,17 +240,18 @@ function drawRoom(svg,mini){
   el("path",{d:`M0,${AL0} H3.5 V21.8 H${LW} V${WING} H0 Z`,fill:"var(--warn-bg)",opacity:mini?0.8:0.7},svg);
   // stairs
   const sh=WING-L;
-  const STX=R-(6+7/12);
-  el("rect",{x:LW,y:L,width:STX-LW,height:sh,fill:"none",stroke:"var(--muted)","stroke-width":0.05,"stroke-dasharray":"0.25 0.18"},svg);
-  if(!mini) el("text",{x:(LW+STX)/2,y:L+1.2,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"WALKWAY");
+  const STX=LW;
   el("rect",{x:STX,y:L,width:R-STX,height:sh,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
   for(let x=STX+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:L+sh,stroke:"var(--muted)","stroke-width":0.05},svg);
   if(!mini){
     el("text",{x:(STX+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.8,fill:"var(--muted)","letter-spacing":0.3},svg,"STAIRS");
-    el("text",{x:(4+1/12+LW)/2,y:WING-1,"text-anchor":"middle","font-size":0.5,fill:"var(--warn)"},svg,"WALKWAY");
+    
   }
   const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-5.25 V${AL0} H0 Z`;
   el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":mini?0.28:0.2},svg);
+  el("line",{x1:LW,y1:WING-OPEN+0.12,x2:LW,y2:WING-0.12,stroke:"var(--sheet)","stroke-width":0.34},svg);
+  if(!mini){ el("path",{d:`M${LW+1.2},${WING-OPEN/2} H${LW-1.4} m0.5,-0.5 l-0.5,0.5 l0.5,0.5`,stroke:"var(--warn)","stroke-width":0.12,fill:"none"},svg);
+  el("text",{x:LW-0.3,y:WING-OPEN/2-0.45,"text-anchor":"middle","font-size":0.55,fill:"var(--warn)"},svg,"ENTRY"); }
   const dy0=AL0+1.4, dl=2.75;
   el("path",{d:`M-5.25,${dy0} L${-5.25+dl},${dy0} A${dl},${dl} 0 0 1 -5.25,${dy0+dl}`,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
   if(!mini) el("text",{x:-2.6,y:AL0-0.3,"text-anchor":"middle","font-size":0.6,fill:"var(--muted)"},svg,"DOOR");

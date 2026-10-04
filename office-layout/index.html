@@ -190,10 +190,10 @@ svg text{font-family:var(--f-display)}
         <dt>1′ 8″ × 1′ 4½″</dt><dd>Wall jog in the top-right corner</dd>
         <dt>1′ 2½″ × 8″</dt><dd>Column on the right wall, about 14½ ft down. I placed it from the sketch.</dd>
         <dt>10′ 4″</dt><dd>Wall above the stairs, bottom right</dd>
-        <dt>6′ 7″</dt><dd>Width of the stairs, measured from the right wall. The rest of the space below the 10′ 4″ wall is walkway.</dd>
+        <dt>6′ 7″</dt><dd>Stairs, measured down from the 10′ 4″ wall. They open into the room through a 2′ 10″ gap at the bottom of the wall beside the booth corner.</dd>
         <dt>5′ 8″ × 5′ 3″</dt><dd>Door alcove on the left wall, 5′ 3″ deep from the door to the wall</dd>
         <dt>5½″ × 5½″</dt><dd>Post, 2′ 10″ out from the left wall and 5′ 2″ below the top-right jog</dd>
-        <dt>4′ 1″ × 4′ 2″</dt><dd>Phone booth in the bottom-left corner. The bottom wall runs 3′ 4″ past it and then turns up along the stairs. I kept the floor in front of it clear as the walkway.</dd>
+        <dt>4′ 1″ × 4′ 2″</dt><dd>Phone booth in the bottom-left corner, on a 7′ 8″ wall. I kept the floor in front of it clear as the way in from the stairs.</dd>
       </dl>
     </div>
   </div>
@@ -201,8 +201,8 @@ svg text{font-family:var(--f-display)}
 
 <script>
 (function(){
-const R = 17 + 8/12, L = 23 + 3/12, LW = (4 + 1/12) + (3 + 4/12), C = 3;
-const WING = 30.0, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
+const R = 17 + 8/12, L = 23 + 3/12, LW = 7 + 8/12, C = 3;
+const WING = L + 6 + 7/12, OPEN = 2 + 10/12, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
 const OBST = [
   {x:0, y:WING-(4+2/12), w:4+1/12, h:4+2/12},
   {x:2+10/12, y:1.375+5+2/12, w:5.5/12, h:5.5/12},
@@ -340,9 +340,7 @@ function drawPlan(res,W,D){
   for(let y=1;y<L;y++) el("line",{x1:0,y1:y,x2:R,y2:y},g);
 
   // stairs + landing (outside room)
-  const STX=R-(6+7/12);
-  el("rect",{x:LW,y:L,width:STX-LW,height:WING-L,fill:"none",stroke:"var(--muted)","stroke-width":0.05,"stroke-dasharray":"0.25 0.18"},svg);
-  el("text",{x:(LW+STX)/2,y:L+1.2,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"WALKWAY");
+  const STX=LW;
   el("rect",{x:STX,y:L,width:R-STX,height:WING-L,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
   for(let x=STX+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:WING,stroke:"var(--muted)","stroke-width":0.05},svg);
   el("text",{x:(STX+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS ↓");
@@ -359,6 +357,9 @@ function drawPlan(res,W,D){
   // walls
   const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-5.25 V${AL0} H0 Z`;
   el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":0.2,"stroke-linejoin":"miter"},svg);
+  el("line",{x1:LW,y1:WING-OPEN+0.12,x2:LW,y2:WING-0.12,stroke:"var(--sheet)","stroke-width":0.34},svg);
+  el("path",{d:`M${LW+1.2},${WING-OPEN/2} H${LW-1.4} m0.5,-0.5 l-0.5,0.5 l0.5,0.5`,stroke:"var(--warn)","stroke-width":0.12,fill:"none"},svg);
+  el("text",{x:LW-0.3,y:WING-OPEN/2-0.45,"text-anchor":"middle","font-size":0.55,fill:"var(--warn)"},svg,"ENTRY");
   // door swing in alcove
   const dy0=AL0+1.4, dl=2.75;
   el("path",{d:`M-5.25,${dy0} L${-5.25+dl},${dy0} A${dl},${dl} 0 0 1 -5.25,${dy0+dl}`,fill:"none",stroke:"var(--muted)","stroke-width":0.05},svg);
