@@ -268,17 +268,29 @@ const UNION=[{x:0,y:0,w:R,h:L},{x:0,y:0,w:LW,h:WING}];
 const inUnion=r=>UNION.some(u=>r.x>=u.x-E&&r.y>=u.y-E&&r.x+r.w<=u.x+u.w+E&&r.y+r.h<=u.y+u.h+E);
 function rectOf(it){ if(it.type==="desk") return {x:it.x,y:it.y,w:it.w,h:it.h}; const r=it.dia/24; return {x:it.x-r,y:it.y-r,w:2*r,h:2*r}; }
 function circleHitsRect(c,r){ const rad=c.dia/24, nx=Math.max(r.x,Math.min(c.x,r.x+r.w)), ny=Math.max(r.y,Math.min(c.y,r.y+r.h)); return (c.x-nx)**2+(c.y-ny)**2<(rad-E)**2; }
+// L-shaped desk: a desk with `arm` (depth, ft) and `rot` (elbow corner 0=TL 1=TR 2=BR 3=BL)
+function partsOf(it){
+  if(it.type!=="desk"||!it.arm) return [rectOf(it)];
+  const {x,y,w,h}=it, t=it.arm;
+  const top={x,y,w,h:t}, bot={x,y:y+h-t,w,h:t}, lft={x,y,w:t,h}, rgt={x:x+w-t,y,w:t,h};
+  return [[top,lft],[top,rgt],[bot,rgt],[bot,lft]][it.rot||0];
+}
+function lPath(it){ const {x,y,w,h}=it, t=it.arm;
+  return [`M${x},${y} H${x+w} V${y+t} H${x+t} V${y+h} H${x} Z`,
+          `M${x},${y} H${x+w} V${y+h} H${x+w-t} V${y+t} H${x} Z`,
+          `M${x+w},${y} V${y+h} H${x} V${y+h-t} H${x+w-t} V${y} Z`,
+          `M${x},${y} H${x+t} V${y+h-t} H${x+w} V${y+h} H${x} Z`][it.rot||0]; }
 function hits(a,b){
   if(a.type==="chair"&&b.type==="chair") return Math.hypot(a.x-b.x,a.y-b.y)<(a.dia+b.dia)/24-E;
-  if(a.type==="chair") return circleHitsRect(a,rectOf(b));
-  if(b.type==="chair") return circleHitsRect(b,rectOf(a));
-  return ov(rectOf(a),rectOf(b));
+  if(a.type==="chair") return partsOf(b).some(r=>circleHitsRect(a,r));
+  if(b.type==="chair") return partsOf(a).some(r=>circleHitsRect(b,r));
+  return partsOf(a).some(p=>partsOf(b).some(q=>ov(p,q)));
 }
 function itemState(it,items){
-  const r=rectOf(it);
-  const obstHit=it.type==="chair"?OBST.some(o=>circleHitsRect(it,o)):OBST.some(o=>ov(r,o));
+  const r=rectOf(it), parts=partsOf(it);
+  const obstHit=it.type==="chair"?OBST.some(o=>circleHitsRect(it,o)):OBST.some(o=>parts.some(p=>ov(p,o)));
   if(!inUnion(r)||obstHit||items.some(o=>o!==it&&hits(it,o))) return "bad";
-  if(KEEP.some(k=>ov(r,k))) return "warn";
+  if(KEEP.some(k=>parts.some(p=>ov(p,k)))) return "warn";
   return "ok";
 }
 function seatsToItems(seats){
@@ -298,14 +310,15 @@ function drawItems(svg,items,opt={}){
     const stroke=st==="bad"?"var(--bad)":st==="warn"?"var(--warn)":(it.type==="desk"?"var(--desk)":"var(--chair)");
     const fill=st==="bad"?"var(--bad-bg)":st==="warn"?"var(--warn-bg)":(it.type==="desk"?"var(--desk-fill)":"var(--sheet)");
     const g=el("g",opt.mini?{}:{"data-id":it.id},svg);
-    if(it.type==="desk") el("rect",{x:it.x,y:it.y,width:it.w,height:it.h,fill,stroke,"stroke-width":sel?0.16:(opt.mini?0.12:0.08)},g);
+    if(it.type==="desk"&&it.arm) el("path",{d:lPath(it),fill,stroke,"stroke-width":sel?0.16:0.08,"stroke-linejoin":"round"},g);
+    else if(it.type==="desk") el("rect",{x:it.x,y:it.y,width:it.w,height:it.h,fill,stroke,"stroke-width":sel?0.16:(opt.mini?0.12:0.08)},g);
     else { const rad=it.dia/24; el("circle",{cx:it.x,cy:it.y,r:rad,fill,stroke,"stroke-width":sel?0.14:(opt.mini?0.1:0.07)},g);
       if(!opt.mini) el("circle",{cx:it.x,cy:it.y,r:rad*0.55,fill:"none",stroke,"stroke-width":0.04,"pointer-events":"none"},g); }
     if(sel){ const r=rectOf(it); el("rect",{x:r.x-0.18,y:r.y-0.18,width:r.w+0.36,height:r.h+0.36,rx:0.15,fill:"none",stroke:"var(--ink)","stroke-width":0.05,"stroke-dasharray":"0.22 0.12","pointer-events":"none"},g); }
   });
 }
 function measure(it,items){
-  const r=rectOf(it), others=OBST.concat(items.filter(o=>o!==it).map(rectOf));
+  const r=rectOf(it), others=OBST.concat(...items.filter(o=>o!==it).map(partsOf));
   const yo=b=>b.y<r.y+r.h-E&&r.y<b.y+b.h-E, xo=b=>b.x<r.x+r.w-E&&r.x<b.x+b.w-E;
   const inWing=r.y+r.h>L+E;
   let left=0, right=inWing?LW:R, up=0, down=(r.x+r.w<=LW+E)?WING:L;
@@ -336,6 +349,7 @@ const ICON={
   rotate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
   copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
   trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  ldesk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v6H9v12H3z"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   person:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg>'
 };
@@ -476,7 +490,8 @@ function clamp(it){ const r=rectOf(it), ox=it.x-r.x, oy=it.y-r.y;
 const getSel=()=>state.edit&&state.edit.items.find(i=>i.id===state.sel);
 function chairsOf(desk){
   const desks=state.edit.items.filter(i=>i.type==="desk");
-  const dist=(c,d)=>{ const nx=Math.max(d.x,Math.min(c.x,d.x+d.w)), ny=Math.max(d.y,Math.min(c.y,d.y+d.h)); return Math.hypot(c.x-nx,c.y-ny); };
+  const dr=(c,d)=>{ const nx=Math.max(d.x,Math.min(c.x,d.x+d.w)), ny=Math.max(d.y,Math.min(c.y,d.y+d.h)); return Math.hypot(c.x-nx,c.y-ny); };
+  const dist=(c,d)=>Math.min(...partsOf(d).map(r=>dr(c,r)));
   return state.edit.items.filter(c=>c.type==="chair"&&dist(c,desk)<=c.dia/24+1.25&&desks.every(d=>d===desk||dist(c,d)>=dist(c,desk)));
 }
 function drawPlanOnly(){
@@ -504,9 +519,28 @@ function drawArrange(){
   const bar=$("bar"), s=getSel();
   if(!s){
     bar.innerHTML=`<button class="tool add" id="add" type="button">${ICON.plus} Desk</button>
+      <button class="tool add" id="addL" type="button">${ICON.plus} ${ICON.ldesk}</button>
       <button class="done-btn" id="done" type="button">Done ✓</button>`;
-    $("add").onclick=addDesk; $("done").onclick=()=>{ if(okToFinish()) return go(4);
+    $("add").onclick=addDesk; $("addL").onclick=addLDesk; $("addL").setAttribute("aria-label","Add L-shaped corner desk"); $("addL").title="L-shaped corner desk"; $("done").onclick=()=>{ if(okToFinish()) return go(4);
       const b=$("status").querySelector(".badge.bad,.badge.warn"); if(b){ b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); b.click&&b.dataset.show&&b.click(); } };
+  } else if(s.type==="desk"&&s.arm){
+    const a=Math.round(s.w*24)/2, b=Math.round(s.h*24)/2, t=Math.round(s.arm*24)/2;
+    if(state.sizing){
+      bar.innerHTML=`<span class="selbox"><input id="lw" type="number" inputmode="decimal" step="0.5" value="${a}" aria-label="Width in inches">×<input id="lh" type="number" inputmode="decimal" step="0.5" value="${b}" aria-label="Length in inches">″ <span aria-hidden="true">${ICON.ldesk.replace('<svg','<svg width="18" height="18"')}</span><input id="lt" type="number" inputmode="decimal" step="0.5" value="${t}" aria-label="Arm depth in inches">″</span>
+        <button class="done-btn" id="szok" type="button">✓</button>`;
+      const apply=()=>{ const w=parseFloat($("lw").value)/12, h=parseFloat($("lh").value)/12, d=parseFloat($("lt").value)/12;
+        if(!(w>=3&&w<=10&&h>=3&&h<=10&&d>=1.3&&d<=3.5&&d<Math.min(w,h))) return; s.w=w; s.h=h; s.arm=d; drawPlanOnly(); save(); };
+      ["lw","lh","lt"].forEach(k=>{ $(k).oninput=apply; $(k).onkeydown=e=>{ if(e.key==="Enter"){ state.sizing=false; drawArrange(); } }; });
+      $("szok").onclick=()=>{ state.sizing=false; drawArrange(); };
+    } else {
+      bar.innerHTML=`<button class="sizechip" id="size" type="button" aria-label="Change desk size">${ICON.ldesk.replace('<svg','<svg width="16" height="16"')} ${inch(a)} × ${inch(b)}″ <span aria-hidden="true">✎</span></button>
+        <button class="tool" id="rot" type="button" aria-label="Rotate">${ICON.rotate}</button>
+        <button class="tool" id="dup" type="button" aria-label="Duplicate">${ICON.copy}</button>
+        <button class="tool del" id="del" type="button" aria-label="Delete">${ICON.trash}</button>
+        <button class="x" id="desel" type="button" aria-label="Deselect">✕</button>`;
+      $("size").onclick=()=>{ state.sizing=true; drawArrange(); $("lw").focus(); $("lw").select(); };
+      $("rot").onclick=rotateSel; $("dup").onclick=dupSel; $("del").onclick=delSel;
+    }
   } else if(s.type==="desk"){
     const wide=s.w>=s.h, wi=Math.round((wide?s.w:s.h)*24)/2, di=Math.round((wide?s.h:s.w)*24)/2;
     if(state.sizing){
@@ -537,7 +571,18 @@ function drawArrange(){
 function addDesk(){ const ed=state.edit, W=state.w/12, D=state.d/12;
   const d={id:ed.next++,type:"desk",x:snapv(R/2-W/2),y:snapv(9),w:W,h:D};
   ed.items.push(d,{id:ed.next++,type:"chair",x:d.x+W/2,y:d.y+D+0.25+CHAIR_IN/24,dia:CHAIR_IN}); state.sel=d.id; save(); drawArrange(); }
+const LDESK={w:63,h:55,arm:24};
+function addLDesk(){ const ed=state.edit, d={id:ed.next++,type:"desk",x:0,y:0.5,w:LDESK.w/12,h:LDESK.h/12,arm:LDESK.arm/12,rot:0};
+  const off=d.arm+0.4+CHAIR_IN/24;
+  const chair={id:ed.next++,type:"chair",x:d.x+off,y:d.y+off,dia:CHAIR_IN};
+  // replace whatever already sits in the corner (desks plus their chairs)
+  const gone=new Set();
+  ed.items.filter(i=>i.type==="desk"&&(hits(d,i)||hits(chair,i))).forEach(i=>{ gone.add(i); chairsOf(i).forEach(c=>gone.add(c)); });
+  ed.items.filter(i=>i.type==="chair"&&(hits(d,i)||hits(chair,i))).forEach(c=>gone.add(c));
+  ed.items=ed.items.filter(i=>!gone.has(i));
+  ed.items.push(d,chair); state.sel=d.id; save(); drawArrange(); }
 function rotateSel(){ const s=getSel(); if(!s||s.type!=="desk") return; const cx=s.x+s.w/2, cy=s.y+s.h/2;
+  if(s.arm) s.rot=((s.rot||0)+1)%4;
   chairsOf(s).forEach(c=>{ const dx=c.x-cx, dy=c.y-cy; c.x=cx-dy; c.y=cy+dx; });
   [s.w,s.h]=[s.h,s.w]; s.x=snapv(cx-s.w/2); s.y=snapv(cy-s.h/2); save(); drawArrange(); }
 function dupSel(){ const s=getSel(); if(!s) return; const ed=state.edit, c=Object.assign({},s,{id:ed.next++}), dx=s.type==="desk"?s.w:s.dia/12+0.25;
@@ -560,7 +605,7 @@ function okToFinish(){ if(!state.edit) return false; const items=state.edit.item
   return items.filter(i=>i.type==="desk").length>=state.people&&!items.some(i=>itemState(i,items)!=="ok"); }
 function stageDone(st){
   const items=state.edit.items, desks=items.filter(i=>i.type==="desk"), chairs=items.filter(i=>i.type==="chair").length;
-  const sizes={}; desks.forEach(d=>{ const a=Math.round(Math.max(d.w,d.h)*24)/2, b=Math.round(Math.min(d.w,d.h)*24)/2, k=`${inch(a)} × ${inch(b)}″`; sizes[k]=(sizes[k]||0)+1; });
+  const sizes={}; desks.forEach(d=>{ const a=Math.round(Math.max(d.w,d.h)*24)/2, b=Math.round(Math.min(d.w,d.h)*24)/2, k=(d.arm?"L ":"")+`${inch(a)} × ${inch(b)}″`; sizes[k]=(sizes[k]||0)+1; });
   st.innerHTML=`<h1>Your plan ✓</h1>
     <div class="summary">${Object.entries(sizes).map(([k,n])=>`<div class="chip"><b>${n}</b><span>desks ${k}</span></div>`).join("")}<div class="chip"><b>${chairs}</b><span>chairs</span></div></div>
     <div class="sheet" style="width:100%"><svg id="final" role="img" aria-label="Final floor plan"></svg></div>
