@@ -191,9 +191,9 @@ svg text{font-family:var(--f-display)}
         <dt>1′ 2½″ × 8″</dt><dd>Column on the right wall, about 14½ ft down. I placed it from the sketch.</dd>
         <dt>10′ 4″</dt><dd>Wall above the stairs, bottom right</dd>
         <dt>6′ 7″</dt><dd>Stairs, measured down from the 10′ 4″ wall. They open into the room through a 2′ 10″ gap at the bottom of the wall beside the booth corner.</dd>
-        <dt>5′ 8″ × 5′ 3″</dt><dd>Door alcove on the left wall, 5′ 3″ deep from the door to the wall</dd>
+        <dt>5′ 8″ × 5′ 3″</dt><dd>Door alcove on the left wall, 5′ 3″ deep. It ends 7′ 8″ above the bottom wall.</dd>
         <dt>5½″ × 5½″</dt><dd>Post, 2′ 10″ out from the left wall and 5′ 2″ below the top-right jog</dd>
-        <dt>4′ 1″ × 4′ 2″</dt><dd>Phone booth in the bottom-left corner, on a 7′ 8″ wall. I kept the floor in front of it clear as the way in from the stairs.</dd>
+        <dt>4′ 1″ × 4′ 2″</dt><dd>Phone booth in the bottom-left corner. The left wall runs 7′ 8″ from the bottom of the door alcove down to the bottom wall, and the booth takes the last 4′ 2″ of it. I kept the floor in front of the booth clear as the way in from the stairs.</dd>
       </dl>
     </div>
   </div>
@@ -201,8 +201,8 @@ svg text{font-family:var(--f-display)}
 
 <script>
 (function(){
-const R = 17 + 8/12, L = 23 + 3/12, LW = 7 + 8/12, C = 3;
-const WING = L + 6 + 7/12, OPEN = 2 + 10/12, AL0 = 19.3, AL1 = AL0 + 5 + 8/12;
+const R = 17 + 8/12, L = 23 + 3/12, LW = R - (10 + 4/12), C = 3;
+const WING = L + 6 + 7/12, OPEN = 2 + 10/12, AL1 = WING - (7 + 8/12), AL0 = AL1 - (5 + 8/12);
 const OBST = [
   {x:0, y:WING-(4+2/12), w:4+1/12, h:4+2/12},
   {x:2+10/12, y:1.375+5+2/12, w:5.5/12, h:5.5/12},
