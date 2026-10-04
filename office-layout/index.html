@@ -326,7 +326,7 @@ function el(tag,attrs,parent,text){ const e=document.createElementNS(NS,tag); fo
 
 function drawPlan(res,W,D){
   const svg=$("plan"); svg.innerHTML="";
-  const vb={x:-7.1,y:-2.4,w:26.7,h:35.0};
+  const vb={x:-7.1,y:-2.4,w:27.3,h:36.0};
   svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
   const defs=el("defs",{},svg);
   const pat=el("pattern",{id:"hatch",width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
@@ -343,7 +343,7 @@ function drawPlan(res,W,D){
   const STX=LW;
   el("rect",{x:STX,y:L,width:R-STX,height:WING-L,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
   for(let x=STX+1.3;x<R-0.2;x+=1.3) el("line",{x1:x,y1:L,x2:x,y2:WING,stroke:"var(--muted)","stroke-width":0.05},svg);
-  el("text",{x:(STX+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS ↓");
+  el("text",{x:(STX+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS");
 
   // keep-clear zones
   KEEP.forEach(k=>el("rect",{x:k.x,y:k.y,width:k.w,height:k.h,fill:"url(#keep)",stroke:"var(--bad)","stroke-width":0.04,"stroke-dasharray":"0.2 0.15"},svg));
@@ -357,6 +357,15 @@ function drawPlan(res,W,D){
   // walls
   const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-5.25 V${AL0} H0 Z`;
   el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":0.2,"stroke-linejoin":"miter"},svg);
+  { const dl=(x1,y1,x2,y2,t,vert)=>{ const c="var(--muted)", sw=0.04;
+      el("line",{x1,y1,x2,y2,stroke:c,"stroke-width":sw},svg);
+      [[x1,y1],[x2,y2]].forEach(([x,y])=>el("line",vert?{x1:x-0.25,y1:y,x2:x+0.25,y2:y,stroke:c,"stroke-width":sw}:{x1:x,y1:y-0.25,x2:x,y2:y+0.25,stroke:c,"stroke-width":sw},svg));
+      const mx=(x1+x2)/2,my=(y1+y2)/2, tx=el("text",{x:mx,y:vert?my:my+0.75,"text-anchor":"middle","font-size":0.55,"font-weight":600,fill:"var(--ink)"},svg,t);
+      if(vert) tx.setAttribute("transform",`rotate(-90 ${mx} ${my}) translate(0 -0.2)`); };
+    dl(-0.9,AL1,-0.9,WING,"7′ 8″",true);
+    dl(R+0.7,L,R+0.7,WING,"6′ 7″",true);
+    dl(0,WING+0.6,LW,WING+0.6,"7′ 4″",false);
+    dl(LW,WING+0.6,R,WING+0.6,"10′ 4″",false); }
   el("line",{x1:LW,y1:WING-OPEN+0.12,x2:LW,y2:WING-0.12,stroke:"var(--sheet)","stroke-width":0.34},svg);
   el("path",{d:`M${LW+1.2},${WING-OPEN/2} H${LW-1.4} m0.5,-0.5 l-0.5,0.5 l0.5,0.5`,stroke:"var(--warn)","stroke-width":0.12,fill:"none"},svg);
   el("text",{x:LW-0.3,y:WING-OPEN/2-0.45,"text-anchor":"middle","font-size":0.55,fill:"var(--warn)"},svg,"ENTRY");
@@ -376,7 +385,6 @@ function drawPlan(res,W,D){
     if(rot) tx.setAttribute("transform",`rotate(-90 ${mx} ${my})`); };
   dim(0,-1,R,-1,fmt(R)); el("line",{x1:0,y1:-1.3,x2:0,y2:-0.7,stroke:"var(--muted)","stroke-width":0.04},svg); el("line",{x1:R,y1:-1.3,x2:R,y2:-0.7,stroke:"var(--muted)","stroke-width":0.04},svg);
   dim(-6.2,0,-6.2,L,fmt(L),true); el("line",{x1:-6.5,y1:0,x2:-5.9,y2:0,stroke:"var(--muted)","stroke-width":0.04},svg); el("line",{x1:-6.5,y1:L,x2:-5.9,y2:L,stroke:"var(--muted)","stroke-width":0.04},svg);
-  el("text",{x:(LW+R)/2,y:L-0.25,"text-anchor":"middle","font-size":0.5,fill:"var(--muted)"},svg,"10′ 4″");
 
   // seats
   if(state.editing) drawEdit(svg);
@@ -392,11 +400,11 @@ function drawPlan(res,W,D){
   });
 
   // scale bar
-  const sx=R-5, sy=WING+1.0;
+  const sx=R-5, sy=WING+2.0;
   for(let i=0;i<5;i++) el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
   el("text",{x:sx,y:sy+0.85,"font-size":0.45,fill:"var(--muted)"},svg,"0");
   el("text",{x:sx+5,y:sy+0.85,"font-size":0.45,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
-  el("text",{x:-6.9,y:WING+1.3,"font-size":0.5,fill:"var(--muted)"},svg,state.editing?"Your arrangement · 1 square = 1 ft":`Desk ${state.w}″ × ${state.d}″ · 1 square = 1 ft`);
+  el("text",{x:-6.9,y:WING+2.3,"font-size":0.5,fill:"var(--muted)"},svg,state.editing?"Your arrangement · 1 square = 1 ft":`Desk ${state.w}″ × ${state.d}″ · 1 square = 1 ft`);
 }
 
 /* ---------- edit mode: drag, rotate, add, delete ---------- */
