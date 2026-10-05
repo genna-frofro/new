@@ -99,7 +99,7 @@ svg text{font-family:var(--f-display)}
   <header>
     <div class="eyebrow">Upstairs office · drawn to scale from your sketch</div>
     <h1>Upstairs Desk Plan</h1>
-    <p class="lede">Five ways to seat about ten people in the upstairs room. Pick a desk size and every layout redraws to scale. A desk only counts if it and its chair space fit clear of the walls, the doorway and the stair landing.</p>
+    <p class="lede">Eight ways to seat about ten people in the upstairs room. Pick a desk size and every layout redraws to scale. A desk only counts if it and its chair space fit clear of the walls, the doorway and the stair landing.</p>
   </header>
 
   <div class="controls">
@@ -224,8 +224,8 @@ const PRESETS = [
 
 const H = (x,y,f)=>({x,y,o:"h",f}), V = (x,y,f)=>({x,y,o:"v",f});
 const LAYOUTS = [
-  { id:"perimeter", name:"Perimeter ring + island",
-    sum:"Desks along the side and top walls, all facing the wall, with a back-to-back pair in the middle. The center stays open.",
+  { id:"perimeter", name:"Ring Road",
+    sum:"A perimeter ring: desks along the side and top walls, all facing the wall, with a back-to-back pair in the middle. The center stays open.",
     pros:["Everyone gets a wall behind their monitor, so cables are easy to run and screens aren't on show","Open center works for a standing huddle","Easy to add or drop one desk"],
     cons:["People sit with their backs to the room","The column on the right wall splits that row"],
     build(W,D){ const c=[];
@@ -238,8 +238,8 @@ const LAYOUTS = [
       for(let x=LW+0.25;x+W<=R-D-C;x+=W) c.push(H(x,L-D,"n"));
       return {c, aisle:{w:(span-cols*W)/2, label:"walkway each side of the island"}};
     }},
-  { id:"pods", name:"Two pods of four + wall row",
-    sum:"Two clusters of four desks on the left, back to back in pairs, plus a single row on the right wall facing it.",
+  { id:"pods", name:"Pod Squad",
+    sum:"Two pods of four desks on the left, back to back in pairs, plus a single row on the right wall facing it.",
     pros:["Pods suit small teams that talk all day","Wall row on the right gives 2–3 quieter seats","A clear walkway runs from the entry to every seat"],
     cons:["People in a pod face each other across the desks, so desks may need privacy screens","Pod desks in the middle need floor boxes or cable trays for power"],
     build(W,D){ const c=[], pitch=2*D+4.75;
@@ -249,8 +249,8 @@ const LAYOUTS = [
       const ax=2*W, aw=R-D-C-ax;
       return {c, aisle:{w:aw, label:"center walkway", rect:{x:ax,y:0.6,w:Math.max(aw,0),h:21}}};
     }},
-  { id:"rows", name:"Classroom rows",
-    sum:"Rows of desks all facing the window wall, with a walkway down the right side.",
+  { id:"rows", name:"Lecture Hall",
+    sum:"Classroom-style rows of desks, all facing the window wall, with a walkway down the right side.",
     pros:["Nobody faces anyone else's screen","Simple to wire: one power run per row","Looks orderly, and you can see the whole room from the back"],
     cons:["People in back rows walk behind others to reach their seats","The bottom row loses seats to the entry area"],
     build(W,D){ const c=[], per=Math.max(1,Math.floor((R-3)/W));
@@ -258,7 +258,7 @@ const LAYOUTS = [
       const aw=R-per*W;
       return {c, aisle:{w:aw, label:"side walkway", rect:{x:per*W,y:0.6,w:aw,h:L-0.6}}};
     }},
-  { id:"spine", name:"Wall row + center spine",
+  { id:"spine", name:"The Backbone",
     sum:"One row on the left wall plus a long double row of back-to-back desks down the middle. The walkway runs along the right wall.",
     pros:["Fits the most desks in this room","The spine shares one power and data run","The walkway is clear and straight from the stairs"],
     cons:["Chairs on the left sit back to back with only about 5½ ft between desks","Feels denser and less private"],
@@ -269,7 +269,7 @@ const LAYOUTS = [
       const ax=sx+2*D+C, aw=R-ax;
       return {c, aisle:{w:aw, label:"right-wall walkway", rect:{x:ax,y:0.6,w:Math.max(aw,0),h:L-0.6}}};
     }},
-  { id:"benches", name:"Two long benches",
+  { id:"benches", name:"Trading Floor",
     sum:"Two benches run across the room, each with a row of desks on both sides. It's a trading-floor style layout.",
     pros:["Seats a lot of people","Two long tables make a tidy, modern look","Short power runs inside each bench"],
     cons:["Least privacy: everyone faces someone","Middle seats are hard to reach once chairs are pushed back"],
@@ -277,6 +277,40 @@ const LAYOUTS = [
       for(let y=0.45+C;y+2*D+C<=L;y+=pitch) for(let i=0;i<per;i++){ c.push(H(i*W,y,"n"),H(i*W,y+D,"s")); }
       const aw=R-per*W;
       return {c, aisle:{w:aw, label:"side walkway", rect:{x:per*W,y:0.6,w:aw,h:L-0.6}}};
+    }},
+  { id:"horseshoe", name:"The Horseshoe",
+    sum:"A U of desks pulled 3 ft off the left, top and right walls, so everyone sits with their back to a wall and faces into the room.",
+    pros:["Everyone can see each other, which suits a team that talks all day","Nobody walks behind anyone's chair","The open middle works for stand-ups or a shared table later"],
+    cons:["Every screen faces the room, so there's no screen privacy","Power has to reach desks that sit away from the walls","The post and the wall column each cost a seat"],
+    build(W,D){ const c=[], st=0.25;
+      for(let y=0.6;y+W<=AL0;y+=st) c.push(V(C,y,"w"));
+      for(let y=0.6;y+W<=L;y+=st) c.push(V(R-C-D,y,"e"));
+      const centered=(a,b,y,f)=>{ const n=Math.max(0,Math.floor((b-a-0.5)/W)), x0=a+(b-a-n*W)/2; for(let i=0;i<n;i++) c.push(H(x0+i*W,y,f)); };
+      centered(C+D,R-C-D,0.45+C,"n");
+      centered(LW,R-C-D,L-C-D,"s");
+      return {c, aisle:{w:R-2*(C+D), label:"open middle"}};
+    }},
+  { id:"pinwheel", name:"Pinwheel",
+    sum:"Four desks spin around a shared center, each one facing out, with a row of wall desks on the right and a pair along the stair wall.",
+    pros:["The pod looks distinctive and turns the room into a hub","No two people in the pod face each other's screens","Cables gather at one point in the middle of the pod"],
+    cons:["The pinwheel takes a lot of floor for four seats","Fits fewer desks than the bench layouts"],
+    build(W,D){ const c=[], st=0.25, T=W+D, ox=3.35, oy=Math.max(0.45+C,7.05-D);
+      c.push(H(ox,oy,"n"),V(ox+W,oy,"e"),H(ox+D,oy+W,"s"),V(ox,oy+D,"w"));
+      for(let y=0.6;y+W<=L;y+=st) c.push(V(R-D,y,"w"));
+      for(let x=LW+0.25;x+W<=R-D-C;x+=st) c.push(H(x,L-D,"n"));
+      for(let x=0;x+W<=R;x+=st) c.push(H(x,0.45,"s"));
+      for(let y=oy+T+C;y+W<=AL0;y+=st) c.push(V(0,y,"e"));
+      return {c, aisle:{w:(R-D)-(ox+T), label:"gap between pod and wall desks"}};
+    }},
+  { id:"windowbar", name:"Window Bar",
+    sum:"A long run of desks along the window wall, a bench of back-to-back desks across the middle, and a pair along the stair wall.",
+    pros:["The best seats get the window light","The left side stays open as a straight walkway from the door","Two clear zones: quiet window seats and a team bench"],
+    cons:["People at the window face the wall","Bench seats face each other across the desks"],
+    build(W,D){ const c=[], st=0.25, per=Math.max(1,Math.floor((R-3.5)/W)), x0=R-per*W, by=0.45+D+5;
+      for(let x=0;x+W<=R;x+=st) c.push(H(x,0.45,"s"));
+      for(let i=0;i<per;i++) c.push(H(x0+i*W,by,"n"),H(x0+i*W,by+D,"s"));
+      for(let x=LW+0.25;x+W<=R;x+=st) c.push(H(x,L-D,"n"));
+      return {c, aisle:{w:x0, label:"left walkway"}};
     }}
 ];
 
@@ -589,7 +623,7 @@ function render(syncInputs=true){
   const ed=!!(state.editing&&state.edit);
   $("toolbar").hidden=!ed; $("editNotes").hidden=!ed; $("layoutNotes").hidden=ed;
   document.querySelector(".sheet").classList.toggle("editing",ed);
-  $("editToggle").textContent=ed?"Back to the 5 layouts":(state.edit?"Resume my arrangement":"Move desks myself");
+  $("editToggle").textContent=ed?"Back to the 8 layouts":(state.edit?"Resume my arrangement":"Move desks myself");
   $("editHint").textContent=ed?"Your arrangement is saved in this browser.":(state.edit?`Picks up where you left off. Use “Reset to layout” inside to start over from ${LAYOUTS[state.layout].name}.`:"Starts from the layout shown. Drag any desk or chair.");
   if(ed){ $("snap").checked=state.edit.snap; }
   drawPlan(res,W,D);
