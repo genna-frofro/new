@@ -273,10 +273,11 @@ const LAYOUTS=[
     for(let y=0.45+D+5;y+2*D+C<=21.8;y+=2*D+5)for(let i=0;i<cols;i++){c.push(H(x0+i*W,y,"n"));c.push(H(x0+i*W,y+D,"s"));}
     for(let x=LW+0.25;x+W<=R-D-C;x+=W)c.push(H(x,L-D,"n"));
     return {c};}},
-  {name:"Pod Squad",sum:"Two pods of four desks on the left, back to back in pairs, plus a row on the right wall.",pros:["Pods suit small teams that talk all day", "Clear walkway from the entry to every seat"],cons:["Pod desks face each other, so privacy screens may help", "Middle desks need floor boxes or cable trays for power"],build(W,D){const c=[],pitch=2*D+4.75;
-    for(let y=0.45+C;y+2*D+C<=AL0;y+=pitch){c.push(H(0,y,"n"),H(W,y,"n"),H(0,y+D,"s"),H(W,y+D,"s"));}
+  {name:"Pod Squad",sum:"Two pods of back-to-back desks on the left, stacked so they work around the post and the door, plus a row of desks on the right wall. Smaller desks can also add a desk along the stair wall.",pros:["Pods suit small teams that talk all day", "Clear walkway from the entry to every seat"],cons:["Pod desks face each other, so privacy screens may help", "Middle desks need floor boxes or cable trays for power"],build(W,D){const c=[],pitch=2*D+4.75;
+    for(let y=0.45+C;y+2*D+C<=L;y+=pitch){c.push(H(0,y,"n"),H(W,y,"n"),H(0,y+D,"s"),H(W,y+D,"s"));}
     for(let y=1.5;y+W<=14.4;y+=W)c.push(V(R-D,y,"w"));
     for(let y=16.0;y+W<=L;y+=W)c.push(V(R-D,y,"w"));
+    for(let x=LW+0.25;x+W<=R-D-C;x+=0.25)c.push(H(x,L-D,"n"));
     const ax=2*W,aw=R-D-C-ax;
     return {c,rect:{x:ax,y:0.6,w:Math.max(aw,0),h:21}};}},
   {name:"Lecture Hall",sum:"Classroom rows facing the window wall, with a walkway down the right side.",pros:["Nobody faces anyone else's screen", "One power run per row"],cons:["Back rows walk behind others to sit", "The bottom row loses seats to the entry"],build(W,D){const c=[],per=Math.max(1,Math.floor((R-3)/W));
