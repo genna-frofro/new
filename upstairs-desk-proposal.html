@@ -340,7 +340,7 @@ function bestFit(wIn,dIn){
 
 /* ---------- state: loaded from the shared store ---------- */
 const BLANK={deskQty:10,taxPct:0,pick:"",desks:[],chair:{name:"Office chair",url:"",price:null,qty:10},ball:{name:"Balance ball chair",url:"",price:null,qty:1},
-  build:{rate:65,hrsDesk:1.25,hrsChair:0.4,minHrs:0,perPerson:50,food:250,people:10}};
+  build:{rate:65,hrsDesk:1.25,hrsChair:0.4,minHrs:0,perPerson:0,food:300,people:10}};
 let S=JSON.parse(JSON.stringify(BLANK));
 let canWrite=false, docRef=null, loaded=false;
 let viewId=null, viewLayout=null; // per-viewer: which desk and layout the plan shows
@@ -435,8 +435,8 @@ function render(){
       <div><div class="k">Watch out</div><ul class="tight small"><li>Most expensive route</li><li>Need someone in the office to let them in</li><li>Quotes vary, so get two before booking</li></ul></div>
     </article>
     <article class="card pick"><div class="top"><h3>B · BDR build afternoon</h3><span class="pill pickp">≈ ${money(bc.bdr)}</span></div>
-      <p class="small" style="color:var(--ink)">One catered afternoon. Pairs build the desks in place, then build the chairs. Each builder gets a ${money(b.perPerson)} gift card, plus food and drinks (${money(b.food)}) for ${b.people} people.</p>
-      <div><div class="k">Incentives</div><ul class="tight small"><li><b>Build it, claim it:</b> whoever builds a desk gets first pick of seats</li><li>${money(b.perPerson)} gift card per builder</li><li>Lunch or happy-hour food during the build</li></ul></div>
+      <p class="small" style="color:var(--ink)">One catered afternoon. Pairs build the desks in place, then build the chairs. We cover food and drinks for ${b.people} people (about ${money(b.food)}).</p>
+      <div><div class="k">Incentives</div><ul class="tight small"><li><b>Build it, claim it:</b> whoever builds a desk gets first pick of seats</li><li>Lunch or happy-hour food during the build</li></ul></div>
       <div><div class="k">Watch out</div><ul class="tight small"><li>Costs an afternoon of selling time, so schedule it for a slow block (e.g. Friday after 2pm)</li><li>Have a power drill or two on hand</li></ul></div>
     </article>`;
   $("buildRec").innerHTML=`<b>Recommendation:</b> run the BDR build afternoon. It costs about ${money(Math.max(bc.hire-bc.bdr,0))} less than hiring out, gets everything built in one go, and people take better care of a desk they built and picked. If fewer than ${Math.ceil(S.deskQty/2)} people sign up, book a handyman for the remainder.`;
@@ -711,7 +711,7 @@ function openEditor(){
     </fieldset>
     <fieldset><legend>Assembly estimates</legend>
       ${fld("br","Handyman $/hr",S.build.rate,"number")}${fld("bh","Hours per desk",S.build.hrsDesk,"number")}${fld("bc","Hours per chair",S.build.hrsChair,"number")}
-      ${fld("bpp","Gift card per builder ($)",S.build.perPerson,"number")}${fld("bpe","Builders",S.build.people,"number")}${fld("bf","Food and drinks ($)",S.build.food,"number")}
+      ${fld("bpe","Builders",S.build.people,"number")}${fld("bf","Food and drinks ($)",S.build.food,"number")}
     </fieldset>
     <div class="editbar"><button class="btn primary" type="submit" id="saveBtn">Save for everyone</button><button class="btn" type="button" id="cancelBtn">Cancel</button><span class="small" id="saveMsg"></span></div>`;
   fm.hidden=false; $("editBtn").hidden=true;
@@ -724,7 +724,7 @@ function readEditor(){
   Object.assign(next.chair,{name:v("cn")||next.chair.name,price:n("cp"),qty:n("cq")??10});
   Object.assign(next.ball,{name:v("bn")||next.ball.name,price:n("bp"),qty:n("bq")??1});
   next.deskQty=n("qty")??10; next.taxPct=n("tax")??0; next.pick=v("pick");
-  Object.assign(next.build,{rate:n("br")??0,hrsDesk:n("bh")??0,hrsChair:n("bc")??0,perPerson:n("bpp")??0,people:n("bpe")??0,food:n("bf")??0});
+  Object.assign(next.build,{rate:n("br")??0,hrsDesk:n("bh")??0,hrsChair:n("bc")??0,perPerson:0,people:n("bpe")??0,food:n("bf")??0});
   return next;
 }
 $("editBtn").onclick=openEditor;
