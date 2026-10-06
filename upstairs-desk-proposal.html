@@ -533,8 +533,22 @@ function mixState(){
   const W=used.length?Math.max(...used.map(d=>d.w)):null, D=used.length?Math.max(...used.map(d=>d.d)):null;
   let li=mixLayout!=null?mixLayout:(S.mixLayout!=null?S.mixLayout:null);
   if(li==null&&W){ li=0; LAYOUTS.forEach((l,i)=>{ if(seatsFor(W,D,i).length>seatsFor(W,D,li).length) li=i; }); }
-  const slots=W?seatsFor(W,D,li??0):[];
-  return {W,D,li:li??0,slots};
+  li=li??0;
+  let slots=W?seatsFor(W,D,li):[], pod=null;
+  // Pinwheel: the four pod desks are one model, drawn at that model's own size
+  if(W&&LAYOUTS[li].name==="Pinwheel"&&mixAssign.length){
+    const cnt={}; mixAssign.slice(0,4).forEach(id=>cnt[id]=(cnt[id]||0)+1);
+    const all={}; mixAssign.forEach(id=>all[id]=(all[id]||0)+1);
+    const podId=Object.keys(cnt).sort((a,b)=>(cnt[b]-cnt[a])||(all[b]-all[a]))[0];
+    const n=Math.min(4,all[podId]);
+    const rest=mixAssign.slice(); const podIds=[];
+    for(let k=0;k<n;k++){ rest.splice(rest.indexOf(podId),1); podIds.push(podId); }
+    mixAssign=podIds.concat(rest);
+    pod={id:podId,n};
+    const P=S.desks.find(d=>d.id===podId), own=seatsFor(P.w,P.d,li).slice(0,4);
+    slots=own.concat(slots.slice(4));
+  }
+  return {W,D,li,slots,pod};
 }
 function placeIn(slot,d){
   const w=d.w/12, dd=d.d/12, s=slot.desk, f=slot.f;
@@ -578,6 +592,7 @@ function renderMix(){
   else {
     st.push(`<span class="pill ${n>=S.deskQty?"ok":"warn"}">${n} desk${n===1?"":"s"} chosen · need ${S.deskQty}</span>`);
     st.push(over>0?`<span class="pill bad">${over} won't fit in ${esc(LAYOUTS[ms.li].name)}</span>`:`<span class="pill ok">all fit · ${ms.slots.length} spots</span>`);
+    if(ms.pod) st.push(`<span class="pill info">pod: 4 × ${esc(S.desks.find(d=>d.id===ms.pod.id).name.split(/[,(]/)[0].trim())}${ms.pod.n<4?` (only ${ms.pod.n} chosen)`:""}</span>`);
     if(ms.slots.length>n) st.push(`<span class="pill info">${ms.slots.length-n} empty spot${ms.slots.length-n>1?"s":""}</span>`);
   }
   $("mixStatus").innerHTML=st.join("");
@@ -601,6 +616,11 @@ document.addEventListener("click",e=>{
   else if(t.dataset.mixminus){ const i=mixAssign.lastIndexOf(t.dataset.mixminus); if(i>=0) mixAssign.splice(i,1); }
   else if(t.dataset.mixlay!=null){ mixLayout=+t.dataset.mixlay; }
   else { const i=+t.dataset.slot, ds=S.desks.filter(sized); if(!ds.length) return;
+    const ms=mixState();
+    if(ms.pod&&i<4){ // switch the whole pod to the next model
+      const k=ds.findIndex(d=>d.id===ms.pod.id), next=ds[(k+1)%ds.length].id;
+      for(let j=0;j<4;j++){ if(j<mixAssign.length) mixAssign[j]=next; else mixAssign.push(next); }
+      mixChanged(); return; }
     if(i>=mixAssign.length){ mixAssign.push(ds[0].id); }
     else { const k=ds.findIndex(d=>d.id===mixAssign[i]); mixAssign[i]=ds[(k+1)%ds.length].id; } }
   mixChanged();
