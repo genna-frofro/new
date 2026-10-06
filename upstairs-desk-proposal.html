@@ -8,6 +8,7 @@
   --desk:#2f6f8f; --desk-fill:#d6e6ee; --chair:#8a9aa3;
   --ok:#2e7d4f; --ok-bg:#dcefe3; --warn:#a8650f; --warn-bg:#f6e8d2; --bad:#b03a2e; --bad-bg:#f5dcd8;
   --hatch:#b7bfbb;
+  --t1:#2f6f8f; --t1f:#d6e6ee; --t2:#a8650f; --t2f:#f6e8d2; --t3:#6b4fa0; --t3f:#e6def3; --t4:#2e7d4f; --t4f:#dcefe3;
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -16,12 +17,12 @@
   --paper:#12181c; --sheet:#182127; --ink:#e3e9ec; --muted:#93a2aa; --grid:#243037; --rule:#33424b;
   --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#6f828c;
   --ok:#6cc595; --ok-bg:#16301f; --warn:#e0a24f; --warn-bg:#33270f; --bad:#ef7b6e; --bad-bg:#3a1a16;
-  --hatch:#3c4a52; color-scheme:dark}}
+  --hatch:#3c4a52; --t1:#7fbbd8; --t1f:#1f3a4a; --t2:#e0a24f; --t2f:#3a2a12; --t3:#b8a2e6; --t3f:#2c2440; --t4:#6cc595; --t4f:#16301f; color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#12181c; --sheet:#182127; --ink:#e3e9ec; --muted:#93a2aa; --grid:#243037; --rule:#33424b;
   --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#6f828c;
   --ok:#6cc595; --ok-bg:#16301f; --warn:#e0a24f; --warn-bg:#33270f; --bad:#ef7b6e; --bad-bg:#3a1a16;
-  --hatch:#3c4a52; color-scheme:dark}
+  --hatch:#3c4a52; --t1:#7fbbd8; --t1f:#1f3a4a; --t2:#e0a24f; --t2f:#3a2a12; --t3:#b8a2e6; --t3f:#2c2440; --t4:#6cc595; --t4f:#16301f; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.55}
 .wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:32px 64px;display:grid;gap:34px}
@@ -89,6 +90,16 @@ ul.tight{margin:0;padding-left:18px;display:grid;gap:4px}
 .f.wide input{width:100%}
 .note{font-size:13.5px;color:var(--muted);border-left:3px solid var(--rule);padding-left:10px}
 .missing{color:var(--warn)}
+.mixrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule)}
+.mixrow:last-child{border-bottom:none}
+.sw{width:16px;height:12px;border-radius:2px;border:1.5px solid;display:inline-block}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:30px;height:30px;padding:0;font-size:17px;line-height:1}
+.step b{font-family:var(--f-mono);min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
+.mixpanel{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:6px 14px}
+#mixPlan [data-slot]{cursor:pointer}
+#mixPlan [data-slot]:focus-visible{outline:none}
+#mixPlan [data-slot]:focus-visible rect.dk{stroke-width:0.16}
 .card.sel{cursor:pointer}
 .card.sel:hover{border-color:var(--desk)}
 .card.sel[aria-pressed="true"]{background:var(--desk-fill);border-color:var(--desk)}
@@ -161,6 +172,23 @@ td.c.on{background:var(--desk-fill)}
     <div class="planrow">
       <div class="sheet"><svg id="plan" role="img" aria-label="Floor plan of the upstairs room with the recommended desks"></svg></div>
       <div style="display:grid;gap:12px;min-width:0" id="planNotes"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="mix-h">
+    <div style="display:grid;gap:4px">
+      <h2 id="mix-h">Mix and match desks</h2>
+      <p class="small">See the room with more than one desk model. Set how many of each you want, or click a desk in the plan to switch it to the next model. Every spot is sized for the largest desk in the mix, so smaller desks sit against the wall with a little extra room around them.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Layout for the mix" id="mixLayTabs"></div>
+    <div class="planrow">
+      <div class="sheet"><svg id="mixPlan" role="img" aria-label="Floor plan of the upstairs room with a mix of desk models"></svg></div>
+      <div style="display:grid;gap:12px;min-width:0">
+        <div class="mixpanel" id="mixCounts"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="mixStatus"></div>
+        <dl class="cmp" id="mixCost"></dl>
+        <div class="editbar"><button class="btn" type="button" id="mixReset">Reset mix</button><button class="btn primary" type="button" id="mixSave" hidden>Save this mix for everyone</button><span class="small" id="mixMsg"></span></div>
+      </div>
     </div>
   </section>
 
@@ -313,7 +341,7 @@ const num=v=>typeof v==="number"&&isFinite(v);
 const money=v=>num(v)?"$"+v.toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:0}):"—";
 const money2=v=>num(v)?"$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"price needed";
 const inch=v=>num(v)?(String(v).replace(".5","½"))+"″":"?";
-const STORAGE={none:"No storage",drawer:"Drawer",drawers:"Drawers",cubbies:"Cubbies / shelves"};
+const STORAGE={none:"No storage",drawer:"Drawer",drawers:"Drawers",cubbies:"Open cubbies",shelfdrawers:"Drawers + shelf"};
 
 function seatCost(){ const c=S.chair,b=S.ball; return {chairs:num(c.price)?c.price*c.qty:null, ball:num(b.price)?b.price*b.qty:null}; }
 function optionCost(d){
@@ -369,6 +397,7 @@ function render(){
   // plan: the desk being viewed, in the chosen layout
   renderPlan(vd,pd);
   renderMatrix(vd);
+  renderMix();
 
   // cost table
   const rows=S.desks.map(d=>{const c=optionCost(d), isPick=pd&&pd.id===d.id;
@@ -480,15 +509,121 @@ document.addEventListener("keydown",e=>{
   e.preventDefault(); t.click();
 });
 
+/* ---------- mix and match ---------- */
+let mixAssign=null, mixLayout=null; // per-viewer until an editor saves it
+const TYPE_COL=["t1","t2","t3","t4"];
+const typeIdx=id=>Math.max(0,S.desks.findIndex(d=>d.id===id))%TYPE_COL.length;
+const sized=d=>d&&num(d.w)&&num(d.d)&&d.w>=24&&d.d>=16;
+function mixDefault(){
+  if(Array.isArray(S.mixAssign)) return S.mixAssign.slice();
+  const ds=S.desks.filter(sized); if(!ds.length) return [];
+  const per=Math.floor(S.deskQty/ds.length), out=[];
+  ds.forEach((d,i)=>{ for(let k=0;k<per+(i<S.deskQty%ds.length?1:0);k++) out.push(d.id); });
+  return out;
+}
+function mixState(){
+  if(!mixAssign) mixAssign=mixDefault();
+  mixAssign=mixAssign.filter(id=>sized(S.desks.find(d=>d.id===id)));
+  const used=[...new Set(mixAssign)].map(id=>S.desks.find(d=>d.id===id));
+  const W=used.length?Math.max(...used.map(d=>d.w)):null, D=used.length?Math.max(...used.map(d=>d.d)):null;
+  let li=mixLayout!=null?mixLayout:(S.mixLayout!=null?S.mixLayout:null);
+  if(li==null&&W){ li=0; LAYOUTS.forEach((l,i)=>{ if(seatsFor(W,D,i).length>seatsFor(W,D,li).length) li=i; }); }
+  const slots=W?seatsFor(W,D,li??0):[];
+  return {W,D,li:li??0,slots};
+}
+function placeIn(slot,d){
+  const w=d.w/12, dd=d.d/12, s=slot.desk, f=slot.f;
+  let r;
+  if(f==="n"||f==="s") r={x:s.x+(s.w-w)/2, y:f==="s"?s.y:s.y+s.h-dd, w, h:dd};
+  else r={x:f==="e"?s.x:s.x+s.w-dd, y:s.y+(s.h-w)/2, w:dd, h:w};
+  return r;
+}
+function renderMix(){
+  const ms=mixState(), cnt={};
+  mixAssign.forEach(id=>cnt[id]=(cnt[id]||0)+1);
+  const placed=Math.min(mixAssign.length,ms.slots.length), over=mixAssign.length-placed;
+  // layout tabs
+  $("mixLayTabs").innerHTML=LAYOUTS.map((l,i)=>{const n=ms.W?seatsFor(ms.W,ms.D,i).length:null;
+    return `<button class="tab" role="tab" type="button" aria-selected="${ms.W&&i===ms.li}" data-mixlay="${i}" ${ms.W?"":"disabled"}><span>${l.name}</span><span class="n${n!=null&&n<mixAssign.length?" short":""}">${n??"–"}</span></button>`;}).join("");
+  // counts
+  $("mixCounts").innerHTML=S.desks.map(d=>{ const t=TYPE_COL[typeIdx(d.id)], ok=sized(d);
+    return `<div class="mixrow"><span class="sw" style="background:var(--${t}f);border-color:var(--${t})"></span>
+      <div style="min-width:0"><div style="font-weight:600">${esc(d.name.split(/[,(]/)[0].trim())}</div><div class="small">${ok?`${inch(d.w)} × ${inch(d.d)} · `:""}${num(d.price)?money2(d.price):"price needed"}</div></div>
+      ${ok?`<div class="step"><button class="btn" type="button" data-mixminus="${esc(d.id)}" aria-label="One fewer ${esc(d.name)}" ${cnt[d.id]?"":"disabled"}>−</button><b>${cnt[d.id]||0}</b><button class="btn" type="button" data-mixplus="${esc(d.id)}" aria-label="One more ${esc(d.name)}">+</button></div>`:`<span class="pill warn">add size</span>`}
+      <span></span></div>`;}).join("");
+  // plan
+  const svg=drawRoom("mixPlan","m");
+  ms.slots.forEach((slot,i)=>{
+    const id=mixAssign[i], d=id&&S.desks.find(x=>x.id===id);
+    const g=el("g",{"data-slot":i,tabindex:0,role:"button","aria-label":d?`Desk ${i+1}: ${d.name}. Click to switch model.`:`Empty spot ${i+1}. Click to add a desk.`},svg);
+    if(!d){ const r=slot.desk; el("rect",{class:"dk",x:r.x,y:r.y,width:r.w,height:r.h,fill:"var(--sheet)",stroke:"var(--muted)","stroke-width":0.06,"stroke-dasharray":"0.3 0.15"},g);
+      el("text",{x:r.x+r.w/2,y:r.y+r.h/2+0.25,"text-anchor":"middle","font-size":0.7,fill:"var(--muted)","pointer-events":"none"},g,"+"); return; }
+    const t=TYPE_COL[typeIdx(d.id)], r=placeIn(slot,d), z=zone(r,slot.f);
+    el("rect",{x:slot.desk.x,y:slot.desk.y,width:slot.desk.w,height:slot.desk.h,fill:"transparent",stroke:"none"},g);
+    el("rect",{x:z.x,y:z.y,width:z.w,height:z.h,fill:"none",stroke:`var(--${t})`,"stroke-width":0.04,"stroke-dasharray":"0.18 0.14",opacity:0.6,"pointer-events":"none"},g);
+    el("rect",{class:"dk",x:r.x,y:r.y,width:r.w,height:r.h,fill:`var(--${t}f)`,stroke:`var(--${t})`,"stroke-width":0.08},g);
+    const cx=slot.f==="e"?r.x+r.w+1.1:slot.f==="w"?r.x-1.1:r.x+r.w/2, cy=slot.f==="s"?r.y+r.h+1.1:slot.f==="n"?r.y-1.1:r.y+r.h/2;
+    el("circle",{cx,cy,r:0.75,fill:"var(--sheet)",stroke:"var(--chair)","stroke-width":0.07,"pointer-events":"none"},g);
+    el("text",{x:r.x+r.w/2,y:r.y+r.h/2+0.25,"text-anchor":"middle","font-size":0.7,"font-weight":700,fill:`var(--${t})`,"pointer-events":"none"},g,String(i+1));
+  });
+  el("text",{x:-6.2,y:WING+1.7,"font-size":0.5,fill:"var(--muted)"},svg,"1 square = 1 ft · click a desk to switch model");
+  // status
+  const n=mixAssign.length, st=[];
+  if(!ms.W) st.push(`<span class="pill warn">add desk sizes to build a mix</span>`);
+  else {
+    st.push(`<span class="pill ${n>=S.deskQty?"ok":"warn"}">${n} desk${n===1?"":"s"} chosen · need ${S.deskQty}</span>`);
+    st.push(over>0?`<span class="pill bad">${over} won't fit in ${esc(LAYOUTS[ms.li].name)}</span>`:`<span class="pill ok">all fit · ${ms.slots.length} spots</span>`);
+    if(ms.slots.length>n) st.push(`<span class="pill info">${ms.slots.length-n} empty spot${ms.slots.length-n>1?"s":""}</span>`);
+  }
+  $("mixStatus").innerHTML=st.join("");
+  // cost
+  const sc=seatCost(); let desks=0, missing=0;
+  mixAssign.forEach(id=>{const d=S.desks.find(x=>x.id===id); if(num(d.price)) desks+=d.price; else missing++;});
+  const seat=(sc.chairs||0)+(sc.ball||0), tax=(desks+seat)*(S.taxPct||0)/100, total=desks+seat+tax;
+  const pk=pickDesk(), pc=pk&&optionCost(pk.d);
+  const diff=pc&&!missing?total-pc.total:null;
+  $("mixCost").innerHTML=`<dt>${n} desks</dt><dd>${money2(desks)}${missing?` <span class="missing">+ ${missing} without a price</span>`:""}</dd>
+    <dt>With seating</dt><dd>${money2(total)}</dd>
+    ${diff!=null?`<dt>Vs all ${esc(pk.d.name.split(/[,(]/)[0].trim())}</dt><dd><span class="delta ${diff>0?"up":"down"}">${Math.abs(diff)<0.005?"same":(diff>0?"+":"−")+money2(Math.abs(diff))}</span></dd>`:""}
+    <dt>Storage</dt><dd>${(()=>{const g={};mixAssign.forEach(id=>{const d=S.desks.find(x=>x.id===id),k=STORAGE[d.storage]||"—";g[k]=(g[k]||0)+1;});return Object.entries(g).map(([k,v])=>`${v} × ${esc(k).toLowerCase()}`).join(", ")||"—";})()}</dd>`;
+  $("mixSave").hidden=!canWrite;
+}
+function mixChanged(){ $("mixMsg").textContent=""; renderMix(); }
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-mixplus],[data-mixminus],[data-mixlay],#mixPlan [data-slot]"); if(!t)return;
+  if(!mixAssign) mixAssign=mixDefault();
+  if(t.dataset.mixplus){ mixAssign.push(t.dataset.mixplus); }
+  else if(t.dataset.mixminus){ const i=mixAssign.lastIndexOf(t.dataset.mixminus); if(i>=0) mixAssign.splice(i,1); }
+  else if(t.dataset.mixlay!=null){ mixLayout=+t.dataset.mixlay; }
+  else { const i=+t.dataset.slot, ds=S.desks.filter(sized); if(!ds.length) return;
+    if(i>=mixAssign.length){ mixAssign.push(ds[0].id); }
+    else { const k=ds.findIndex(d=>d.id===mixAssign[i]); mixAssign[i]=ds[(k+1)%ds.length].id; } }
+  mixChanged();
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  const g=e.target.closest&&e.target.closest("#mixPlan [data-slot]"); if(!g)return;
+  e.preventDefault(); g.dispatchEvent(new MouseEvent("click",{bubbles:true}));
+});
+$("mixReset").onclick=()=>{ mixAssign=null; mixLayout=null; mixChanged(); };
+$("mixSave").onclick=async()=>{
+  if(!docRef)return; $("mixSave").disabled=true; $("mixMsg").textContent="Saving…";
+  const ms=mixState();
+  try{ await docRef.update({mixAssign:mixAssign.slice(),mixLayout:ms.li}); S.mixAssign=mixAssign.slice(); S.mixLayout=ms.li; $("mixMsg").textContent="Saved for everyone"; }
+  catch(err){ $("mixMsg").textContent=err&&/not_granted|revoked/.test(err.code)?"You can try mixes here, but not save them.":"Couldn't save. Try again in a moment."; }
+  finally{ $("mixSave").disabled=false; }
+};
+
 const NS="http://www.w3.org/2000/svg";
 function el(t,a,p,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p&&p.appendChild(e);return e;}
-function drawPlan(seats){
-  const svg=$("plan"); svg.innerHTML="";
+function drawPlan(seats){ drawPlanSeats(drawRoom("plan","p"),seats); }
+function drawRoom(id,px){
+  const svg=$(id); svg.innerHTML="";
   svg.setAttribute("viewBox","-6.4 -1.8 25.6 34.2");
   const defs=el("defs",{},svg);
-  const pat=el("pattern",{id:"hatch",width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
+  const pat=el("pattern",{id:px+"hatch",width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
   el("line",{x1:0,y1:0,x2:0,y2:0.5,stroke:"var(--hatch)","stroke-width":0.12},pat);
-  const pat2=el("pattern",{id:"keep",width:0.6,height:0.6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(-45)"},defs);
+  const pat2=el("pattern",{id:px+"keep",width:0.6,height:0.6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(-45)"},defs);
   el("line",{x1:0,y1:0,x2:0,y2:0.6,stroke:"var(--bad)","stroke-width":0.06,opacity:0.6},pat2);
   const g=el("g",{stroke:"var(--grid)","stroke-width":0.03},svg);
   for(let x=1;x<R;x++)el("line",{x1:x,y1:0,x2:x,y2:L},g);
@@ -496,16 +631,22 @@ function drawPlan(seats){
   el("rect",{x:LW,y:L,width:R-LW,height:WING-L,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
   for(let x=LW+1.3;x<R-0.2;x+=1.3)el("line",{x1:x,y1:L,x2:x,y2:WING,stroke:"var(--muted)","stroke-width":0.05},svg);
   el("text",{x:(LW+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS");
-  KEEP.forEach(k=>el("rect",{x:k.x,y:k.y,width:k.w,height:k.h,fill:"url(#keep)",stroke:"var(--bad)","stroke-width":0.04,"stroke-dasharray":"0.2 0.15"},svg));
+  KEEP.forEach(k=>el("rect",{x:k.x,y:k.y,width:k.w,height:k.h,fill:`url(#${px}keep)`,stroke:"var(--bad)","stroke-width":0.04,"stroke-dasharray":"0.2 0.15"},svg));
   const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-5.25 V${AL0} H0 Z`;
   el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":0.2},svg);
   el("line",{x1:LW,y1:WING-OPEN+0.12,x2:LW,y2:WING-0.12,stroke:"var(--sheet)","stroke-width":0.34},svg);
   el("text",{x:LW-0.3,y:WING-OPEN/2-0.45,"text-anchor":"middle","font-size":0.55,fill:"var(--warn)"},svg,"ENTRY");
   el("text",{x:-2.6,y:AL0-0.3,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"DOOR");
-  OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:"url(#hatch)",stroke:"var(--ink)","stroke-width":0.05},svg));
+  OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:`url(#${px}hatch)`,stroke:"var(--ink)","stroke-width":0.05},svg));
   ["PHONE","BOOTH"].forEach((t,k)=>el("text",{x:(4+1/12)/2,y:WING-(4+2/12)/2-0.1+k*0.6,"text-anchor":"middle","font-size":0.5,fill:"var(--ink)","font-weight":600},svg,t));
   el("text",{x:R/2,y:-0.6,"text-anchor":"middle","font-size":0.6,fill:"var(--ink)","font-weight":600},svg,"17′ 8″");
-  const t=el("text",{x:-5.7,y:L/2,"text-anchor":"middle","font-size":0.6,fill:"var(--ink)","font-weight":600,transform:`rotate(-90 -5.7 ${L/2})`},svg,"23′ 3″");
+  el("text",{x:-5.7,y:L/2,"text-anchor":"middle","font-size":0.6,fill:"var(--ink)","font-weight":600,transform:`rotate(-90 -5.7 ${L/2})`},svg,"23′ 3″");
+  const sx=R-5,sy=WING+1.4;
+  for(let i=0;i<5;i++)el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
+  el("text",{x:sx+5,y:sy+0.85,"font-size":0.45,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
+  return svg;
+}
+function drawPlanSeats(svg,seats){
   if(seats) seats.forEach((s,i)=>{
     const spare=i>=S.deskQty, col=spare?"var(--muted)":"var(--desk)";
     const z=s.chair,d=s.desk;
@@ -515,9 +656,6 @@ function drawPlan(seats){
     if(!spare) el("circle",{cx,cy,r:0.75,fill:"var(--sheet)",stroke:"var(--chair)","stroke-width":0.07},svg);
     el("text",{x:d.x+d.w/2,y:d.y+d.h/2+0.25,"text-anchor":"middle","font-size":0.7,"font-weight":700,fill:col},svg,spare?"+":String(i+1));
   });
-  const sx=R-5,sy=WING+1.4;
-  for(let i=0;i<5;i++)el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
-  el("text",{x:sx+5,y:sy+0.85,"font-size":0.45,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
   el("text",{x:-6.2,y:WING+1.7,"font-size":0.5,fill:"var(--muted)"},svg,"1 square = 1 ft · dashed + = spare spot");
 }
 
@@ -577,12 +715,12 @@ render();
   docRef=db.doc("proposal/main");
   docRef.onSnapshot(snap=>{
     const data=snap&&snap.exists?snap.data():null;
-    if(data){ S=Object.assign(JSON.parse(JSON.stringify(BLANK)),data); S.build=Object.assign({},BLANK.build,data.build||{}); }
+    if(data){ S=Object.assign(JSON.parse(JSON.stringify(BLANK)),data); S.build=Object.assign({},BLANK.build,data.build||{}); mixAssign=null; mixLayout=null; }
     loaded=true; render();
   },()=>{ $("syncNote").textContent="Couldn't load the saved prices. Reload the page to try again."; });
   const user=window.claude&&await window.claude.use("user");
   canWrite=user?(await user.can("data.write"))!==false:false;
-  $("editbar").hidden=!canWrite;
+  $("editbar").hidden=!canWrite; $("mixSave").hidden=!canWrite;
 })();
 })();
 </script>
