@@ -267,11 +267,11 @@ const H=(x,y,f)=>({x,y,o:"h",f}), V=(x,y,f)=>({x,y,o:"v",f});
 const LAYOUTS=[
   {name:"Ring Road",sum:"Desks along the side and top walls facing the wall, with a back-to-back pair in the middle. The center stays open.",pros:["Monitors face the wall, so cables are easy and screens are private", "Open center for a standing huddle"],cons:["People sit with their backs to the room", "The wall column splits the right-hand row"],build(W,D){const c=[];
     for(let y=0.6;y+W<=AL0-0.2;y+=W)c.push(V(0,y,"e"));
-    for(let y=1.5;y+W<=COLY-0.1;y+=W)c.push(V(R-D,y,"w"));
+    for(let y=0.45+D+0.1;y+W<=COLY-0.1;y+=W)c.push(V(R-D,y,"w")); // starts below the top-wall row
     for(let y=COLY+COLH+0.1;y+W<=L;y+=W)c.push(V(R-D,y,"w"));
-    for(let x=D+C;x+W<=R-D-C;x+=W)c.push(H(x,0.45,"s"));
+    for(let x=D+C;x+W<=R-D;x+=W)c.push(H(x,0.45,"s"));
     const span=R-2*D-2*C,cols=Math.max(0,Math.floor((span-1)/W)),x0=(R-cols*W)/2;
-    for(let y=0.45+D+5;y+2*D+C<=21.8;y+=2*D+5)for(let i=0;i<cols;i++){c.push(H(x0+i*W,y,"n"));c.push(H(x0+i*W,y+D,"s"));}
+    for(let y=0.45+D+2*C;y+2*D+C<=21.8;y+=2*D+5)for(let i=0;i<cols;i++){c.push(H(x0+i*W,y,"n"));c.push(H(x0+i*W,y+D,"s"));}
     for(let x=LW+0.25;x+W<=R-D-C;x+=W)c.push(H(x,L-D,"n"));
     return {c};}},
   {name:"Pod Squad",sum:"Two pods of back-to-back desks on the left, stacked so they work around the post and the door, plus a row of desks on the right wall. Smaller desks can also add a desk along the stair wall.",pros:["Pods suit small teams that talk all day", "Clear walkway from the entry to every seat"],cons:["Pod desks face each other, so privacy screens may help", "Middle desks need floor boxes or cable trays for power"],build(W,D){const c=[],pitch=2*D+4.75;
