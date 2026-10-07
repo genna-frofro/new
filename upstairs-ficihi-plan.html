@@ -138,7 +138,7 @@ td.c.on{background:var(--desk-fill)}
     <h2 id="ask-h">Reorganization plan</h2>
     <ol>
       <li>Purchase <b id="askQty">10</b> standing desks, <b id="askChairs">10</b> office chairs and <b id="askBall">1</b> balance ball chair for the upstairs room.</li>
-      <li>Desk: <b id="askPick">FiCiHi</b>, 40″ × 24″, $142.49 each.</li>
+      <li>Desk: <b id="askPick">Claiks</b>, 48″ × 24″, $199.99 each.</li>
       <li>Layout: still being decided. The options are compared below.</li>
       <li>Assemble them either with a hired handyman or during a catered build evening with the BDRs. Recommended: the build evening, with a handyman as backup.</li>
     </ol>
@@ -172,7 +172,7 @@ td.c.on{background:var(--desk-fill)}
   <section aria-labelledby="plan-h">
     <div style="display:grid;gap:4px">
       <h2 id="plan-h">Layout options</h2>
-      <p class="small">Pick a layout to see the FiCiHi desks drawn to scale in the room. The number on each tab is how many desks that layout seats.</p>
+      <p class="small">Pick a layout to see the desks drawn to scale in the room. The number on each tab is how many desks that layout seats.</p>
     </div>
     <div class="tabs" role="tablist" aria-label="Desk" id="deskTabs" hidden></div>
     <div class="tabs" role="tablist" aria-label="Layout" id="layTabs"></div>
@@ -531,7 +531,7 @@ function drawPlanSeats(svg,seats){
   el("text",{x:-6.2,y:WING+1.7,"font-size":0.5,fill:"var(--muted)"},svg,"1 square = 1 ft · dashed + = spare spot");
 }
 
-S=Object.assign(JSON.parse(JSON.stringify(BLANK)),{"deskQty": 10, "taxPct": 0, "pick": "ficihi", "desks": [{"id": "ficihi", "name": "FiCiHi standing desk, 2 drawers (white)", "url": "https://www.amazon.com/dp/B0FRZKG7HD", "price": 142.49, "w": 40, "d": 24, "storage": "drawers", "why": "Two drawers plus a monitor stand and cable management, on a compact 40-inch top. List price $149.99."}], "chair": {"name": "Office chair", "url": "https://www.amazon.com/dp/B0DFGLMM6L", "price": 179, "qty": 10}, "ball": {"name": "Gaiam Classic Balance Ball Chair", "url": "https://www.amazon.com/dp/B006FFR37W", "price": 63.32, "qty": 1, "why": "Encourages active sitting, keep the core engaged and reduce the fatigue of sitting still all day. Also a fun addition to the room that anyone can swap into."}, "build": {"rate": 65, "hrsDesk": 1.25, "hrsChair": 0.4, "minHrs": 0, "perPerson": 0, "food": 300, "people": 10}});
+S=Object.assign(JSON.parse(JSON.stringify(BLANK)),{"deskQty": 10, "taxPct": 0, "pick": "claiks", "desks": [{"id": "claiks", "name": "Claiks glass standing desk (white)", "url": "", "price": 199.99, "w": 48, "d": 24, "storage": "drawer", "why": "One-piece white glass top that doubles as a whiteboard, a 2-zone drawer and built-in USB ports. Adjusts from 28.3″ to 46.5″. List price $219.99."}], "chair": {"name": "Office chair", "url": "https://www.amazon.com/dp/B0DFGLMM6L", "price": 179, "qty": 10}, "ball": {"name": "Gaiam Classic Balance Ball Chair", "url": "https://www.amazon.com/dp/B006FFR37W", "price": 63.32, "qty": 1, "why": "Encourages active sitting, keep the core engaged and reduce the fatigue of sitting still all day. Also a fun addition to the room that anyone can swap into."}, "build": {"rate": 65, "hrsDesk": 1.25, "hrsChair": 0.4, "minHrs": 0, "perPerson": 0, "food": 300, "people": 10}});
 loaded=true;
 render();
 })();
