@@ -128,48 +128,34 @@ td.c.on{background:var(--desk-fill)}
     <div class="eyebrow">Proposal · Upstairs office furniture</div>
     <h1>Upstairs Desk Proposal</h1>
     <dl class="memo">
-      <dt>To</dt><dd>Chief of Staff</dd>
+      <dt>To</dt><dd>Islay</dd>
       <dt>From</dt><dd>Genna</dd>
-      <dt>Re</dt><dd>Desks and chairs for 10 seats upstairs, and how we get them built</dd>
+      <dt>Re</dt><dd>Desks and chairs for 10 seats upstairs, and how they get built</dd>
     </dl>
   </header>
 
   <section class="ask" aria-labelledby="ask-h">
-    <h2 id="ask-h">What I'm asking for</h2>
+    <h2 id="ask-h">Reorganization plan</h2>
     <ol>
-      <li>Approve buying <b id="askQty">10</b> standing desks, <b id="askChairs">10</b> office chairs and <b id="askBall">1</b> balance ball chair for the upstairs room.</li>
-      <li>Agree on one of the desk options below. I recommend <b id="askPick">the option marked below</b>.</li>
-      <li>Pick how we assemble them: hire a handyman, or run a catered build afternoon with the BDRs. I recommend the build afternoon, with a handyman as backup.</li>
-      <li>Consider one more addition the team asked for: a walking pad (see Additional asks).</li>
+      <li>Purchase <b id="askQty">10</b> standing desks, <b id="askChairs">10</b> office chairs and <b id="askBall">1</b> balance ball chair for the upstairs room.</li>
+      <li>Select one of the desk options below. Recommended: <b id="askPick">the option marked below</b>.</li>
+      <li>Assemble them either with a hired handyman or during a catered build afternoon with the BDRs. Recommended: the build afternoon, with a handyman as backup.</li>
+      <li>Consider one addition requested by the team: a walking pad (see Additional asks).</li>
     </ol>
     <div class="figs" id="askFigs"></div>
     <p class="small" id="syncNote">Loading the saved prices…</p>
-  </section>
-
-  <section aria-labelledby="why-h">
-    <h2 id="why-h">What the desks need to do</h2>
-    <ul class="tight">
-      <li><b>Stand and sit.</b> Every option is an electric sit-stand desk.</li>
-      <li><b>Some storage.</b> People need somewhere to keep a notebook, headset and chargers so the desktops stay clear.</li>
-      <li><b>At least 10 in the room.</b> The upstairs room is 17′ 8″ × 23′ 3″ with a door alcove, a phone booth, a post and the stair entry to work around. Each desk below is checked against the same to-scale plan, with 3 ft of chair space behind every desk.</li>
-    </ul>
-  </section>
-
-  <section aria-labelledby="color-h">
-    <h2 id="color-h">Why white</h2>
-    <p>Every desk on this list comes in white, and the chairs are light to match. The main reason is the light: the upstairs room should feel bright, open and energetic, and white furniture reflects the window light instead of soaking it up. There's a lighter reason too. Engineering works downstairs at black desks in black chairs. With us upstairs in all white, the building gets a little friendly heaven-and-hell rivalry.</p>
   </section>
 
   <section aria-labelledby="add-h">
     <h2 id="add-h">Additional asks</h2>
     <div style="display:grid;gap:6px">
       <h3>A ball chair</h3>
-      <p>One balance ball chair anyone can swap into for part of the day. People will enjoy it, and it encourages active sitting: small, constant movements keep your core working and ease the stiffness of sitting still. It's included in the budget below.</p>
+      <p>One balance ball chair anyone can swap into for part of the day. People will enjoy it, and it encourages active sitting: small, constant movements keep the core working and ease the stiffness of sitting still. It's included in the budget below.</p>
     </div>
     <div style="display:grid;gap:6px">
       <h3>A walking pad</h3>
-      <p>The BDRs are currently competing for the most SQLs each month, and the prize is a standing desk. Once everyone has a standing desk, that prize needs a successor, so I polled the team on what else they'd like upstairs. The answer was unanimous: a walking pad to use under a standing desk.</p>
-      <p>I'm still choosing the exact model and will focus on ones that are inexpensive and quiet enough for calls. Quiet under-desk walking pads typically run about $100–$300. <a href="https://www.amazon.com/dp/B0GGB9BV77" target="_blank" rel="noopener">Here is an example</a> of the kind I'm looking at. It isn't in the totals below yet.</p>
+      <p>The BDRs are currently competing for the most SQLs each month, and the prize is a standing desk. Once everyone has a standing desk, that prize needs a successor. The team was polled on what else they would like upstairs, and the answer was unanimous: a walking pad to use under a standing desk.</p>
+      <p>The exact model is still being chosen, with a focus on options that are inexpensive and quiet enough for calls. Quiet under-desk walking pads typically run about $100–$300. <a href="https://www.amazon.com/dp/B0GGB9BV77" target="_blank" rel="noopener">Here is an example</a> of the kind being considered. It is not included in the totals below yet.</p>
     </div>
   </section>
 
@@ -445,7 +431,7 @@ function render(){
       <div><div class="k">Watch out</div><ul class="tight small"><li>Most expensive route</li><li>Need someone in the office to let them in</li><li>Quotes vary, so get two before booking</li></ul></div>
     </article>
     <article class="card pick"><div class="top"><h3>B · BDR build afternoon</h3><span class="pill pickp">≈ ${money(bc.bdr)}</span></div>
-      <p class="small" style="color:var(--ink)">One catered afternoon. Pairs build the desks in place, then build the chairs. We cover food and drinks for ${b.people} people (about ${money(b.food)}).</p>
+      <p class="small" style="color:var(--ink)">One catered afternoon. Pairs build the desks in place, then build the chairs. Food and drinks are provided for ${b.people} people (about ${money(b.food)}).</p>
       <div><div class="k">Incentives</div><ul class="tight small"><li><b>Build it, claim it:</b> whoever builds a desk gets first pick of seats</li><li>Lunch or happy-hour food during the build</li></ul></div>
       <div><div class="k">Watch out</div><ul class="tight small"><li>Costs an afternoon of selling time, so schedule it for a slow block (e.g. Friday after 2pm)</li><li>Have a power drill or two on hand</li></ul></div>
     </article>`;
