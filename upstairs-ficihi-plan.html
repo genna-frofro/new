@@ -394,12 +394,12 @@ function render(){
       <div><div class="k">Good</div><ul class="tight small"><li>No team time lost</li><li>Experienced builders, fewer wobbly desks</li></ul></div>
       <div><div class="k">Watch out</div><ul class="tight small"><li>Most expensive route</li><li>Need someone in the office to let them in</li><li>Quotes vary, so get two before booking</li></ul></div>
     </article>
-    <article class="card pick"><div class="top"><h3>B · BDR build evening</h3><span class="pill pickp">≈ ${money(bc.bdr)}</span></div>
+    <article class="card pick"><div class="top"><h3>B · Build evening</h3><span class="pill pickp">≈ ${money(bc.bdr)}</span></div>
       <p class="small" style="color:var(--ink)">One catered evening after work. Pairs build the desks in place, then build the chairs. Food and drinks are provided for ${b.people} people (about ${money(b.food)}).</p>
       <div><div class="k">Incentives</div><ul class="tight small"><li><b>Build it, claim it:</b> whoever builds a desk gets first pick of seats</li><li>Dinner and drinks during the build</li></ul></div>
       <div><div class="k">Watch out</div><ul class="tight small"><li>Runs after hours, so give people a few days' notice</li><li>Have a power drill or two on hand</li></ul></div>
     </article>`;
-  $("buildRec").innerHTML=`<b>Recommendation:</b> run the BDR build evening. It costs about ${money(Math.max(bc.hire-bc.bdr,0))} less than hiring out, gets everything built in one go, and people take better care of a desk they built and picked. If fewer than ${Math.ceil(S.deskQty/2)} people sign up, book a handyman for the remainder.`;
+  $("buildRec").innerHTML=`<b>Recommendation:</b> run the build evening. It costs about ${money(Math.max(bc.hire-bc.bdr,0))} less than hiring out, gets everything built in one go, and people take better care of a desk they built and picked. If fewer than ${Math.ceil(S.deskQty/2)} people sign up, book a handyman for the remainder.`;
 
   // totals
   const oc=pd&&optionCost(pd);
@@ -409,7 +409,7 @@ function render(){
     ${line(`${S.chair.qty} × ${esc(S.chair.name)}`,num(sc.chairs)?money2(sc.chairs):"price needed")}
     ${line(`${S.ball.qty} × ${esc(S.ball.name)}`,num(sc.ball)?money2(sc.ball):"price needed")}
     ${S.taxPct?line(`Sales tax (${S.taxPct}%)`,oc?money2(oc.tax):"—"):""}
-    ${line("Assembly: BDR build evening",money2(bc.bdr))}
+    ${line("Assembly: Build evening",money2(bc.bdr))}
     ${line("Total (recommended plan)",oc?money2(oc.total+bc.bdr):"—","total")}
     ${line(`<span class="small">Same, with a handyman instead</span>`,`<span class="small">${oc?money2(oc.total+bc.hire):"—"}</span>`)}
     </tbody>`:`<tbody><tr><td class="small">Add desk options to see the total.</td></tr></tbody>`;
