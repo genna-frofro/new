@@ -139,7 +139,7 @@ td.c.on{background:var(--desk-fill)}
     <ol>
       <li>Purchase <b id="askQty">10</b> standing desks, <b id="askChairs">10</b> office chairs and <b id="askBall">1</b> balance ball chair for the upstairs room.</li>
       <li>Select one of the desk options below. Recommended: <b id="askPick">the option marked below</b>.</li>
-      <li>Assemble them either with a hired handyman or during a catered build afternoon with the BDRs. Recommended: the build afternoon, with a handyman as backup.</li>
+      <li>Assemble them either with a hired handyman or during a catered build evening with the BDRs. Recommended: the build evening, with a handyman as backup.</li>
       <li>Consider one addition requested by the team: a walking pad (see Additional asks).</li>
     </ol>
     <p><b>Projected completion: Friday, October 16.</b> That is ahead of the sales team's arrival the following week, so the room is ready to seat them comfortably.</p>
@@ -233,7 +233,7 @@ td.c.on{background:var(--desk-fill)}
     <h2 id="next-h">If approved</h2>
     <ul class="tight">
       <li><b>Immediately:</b> Order everything in one Amazon order so it arrives together. Hold the boxes downstairs until build day.</li>
-      <li><b>Build day:</b> One afternoon. Teams of two build the desks in the upstairs room in the chosen layout, so nothing heavy moves twice.</li>
+      <li><b>Build day:</b> One evening. Teams of two build the desks in the upstairs room in the chosen layout, so nothing heavy moves twice.</li>
       <li><b>Same day:</b> Run power, check every desk raises and lowers, break down boxes for recycling.</li>
       <li><b>By Friday, October 16:</b> Room complete and ready before the sales team arrives the following week.</li>
     </ul>
@@ -432,12 +432,12 @@ function render(){
       <div><div class="k">Good</div><ul class="tight small"><li>No team time lost</li><li>Experienced builders, fewer wobbly desks</li></ul></div>
       <div><div class="k">Watch out</div><ul class="tight small"><li>Most expensive route</li><li>Need someone in the office to let them in</li><li>Quotes vary, so get two before booking</li></ul></div>
     </article>
-    <article class="card pick"><div class="top"><h3>B · BDR build afternoon</h3><span class="pill pickp">≈ ${money(bc.bdr)}</span></div>
-      <p class="small" style="color:var(--ink)">One catered afternoon. Pairs build the desks in place, then build the chairs. Food and drinks are provided for ${b.people} people (about ${money(b.food)}).</p>
-      <div><div class="k">Incentives</div><ul class="tight small"><li><b>Build it, claim it:</b> whoever builds a desk gets first pick of seats</li><li>Lunch or happy-hour food during the build</li></ul></div>
-      <div><div class="k">Watch out</div><ul class="tight small"><li>Costs an afternoon of selling time, so schedule it for a slow block (e.g. Friday after 2pm)</li><li>Have a power drill or two on hand</li></ul></div>
+    <article class="card pick"><div class="top"><h3>B · BDR build evening</h3><span class="pill pickp">≈ ${money(bc.bdr)}</span></div>
+      <p class="small" style="color:var(--ink)">One catered evening after work. Pairs build the desks in place, then build the chairs. Food and drinks are provided for ${b.people} people (about ${money(b.food)}).</p>
+      <div><div class="k">Incentives</div><ul class="tight small"><li><b>Build it, claim it:</b> whoever builds a desk gets first pick of seats</li><li>Dinner and drinks during the build</li></ul></div>
+      <div><div class="k">Watch out</div><ul class="tight small"><li>Runs after hours, so give people a few days' notice</li><li>Have a power drill or two on hand</li></ul></div>
     </article>`;
-  $("buildRec").innerHTML=`<b>Recommendation:</b> run the BDR build afternoon. It costs about ${money(Math.max(bc.hire-bc.bdr,0))} less than hiring out, gets everything built in one go, and people take better care of a desk they built and picked. If fewer than ${Math.ceil(S.deskQty/2)} people sign up, book a handyman for the remainder.`;
+  $("buildRec").innerHTML=`<b>Recommendation:</b> run the BDR build evening. It costs about ${money(Math.max(bc.hire-bc.bdr,0))} less than hiring out, gets everything built in one go, and people take better care of a desk they built and picked. If fewer than ${Math.ceil(S.deskQty/2)} people sign up, book a handyman for the remainder.`;
 
   // totals
   const oc=pd&&optionCost(pd);
@@ -447,7 +447,7 @@ function render(){
     ${line(`${S.chair.qty} × ${esc(S.chair.name)}`,num(sc.chairs)?money2(sc.chairs):"price needed")}
     ${line(`${S.ball.qty} × ${esc(S.ball.name)}`,num(sc.ball)?money2(sc.ball):"price needed")}
     ${S.taxPct?line(`Sales tax (${S.taxPct}%)`,oc?money2(oc.tax):"—"):""}
-    ${line("Assembly: BDR build afternoon",money2(bc.bdr))}
+    ${line("Assembly: BDR build evening",money2(bc.bdr))}
     ${line("Total (recommended plan)",oc?money2(oc.total+bc.bdr):"—","total")}
     ${line(`<span class="small">Same, with a handyman instead</span>`,`<span class="small">${oc?money2(oc.total+bc.hire):"—"}</span>`)}
     </tbody>`:`<tbody><tr><td class="small">Add desk options to see the total.</td></tr></tbody>`;
@@ -455,7 +455,7 @@ function render(){
   // ask figs
   $("askFigs").innerHTML=oc?`
     <div class="fig"><b>${money(oc.total)}</b><span>Furniture</span></div>
-    <div class="fig"><b>${money(bc.bdr)}</b><span>Build afternoon</span></div>
+    <div class="fig"><b>${money(bc.bdr)}</b><span>Build evening</span></div>
     <div class="fig"><b>${money(oc.total+bc.bdr)}</b><span>Total ask</span></div>`:"";
   if(loaded) $("syncNote").textContent=oc&&!oc.partial?"":"Some prices are still being confirmed; totals cover only the prices entered so far.";
   if(loaded&&oc&&!oc.partial) $("syncNote").hidden=true; else $("syncNote").hidden=false;
