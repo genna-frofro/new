@@ -259,7 +259,7 @@ const OBST=[
   {x:0,y:WING-(4+2/12),w:4+1/12,h:4+2/12},
   {x:2+10/12,y:1.375+5+2/12,w:5.5/12,h:5.5/12},
   {x:R-(1+8/12),y:0,w:1+8/12,h:1.375},
-  {x:R-8/12,y:COLY,w:8/12,h:1+2.5/12},
+  {x:R-8/12,y:COLY,w:8/12,h:COLH},
   {x:0,y:0,w:4,h:5/12}
 ];
 const KEEP=[{x:0,y:AL0,w:3.5,h:WING-AL0},{x:0,y:21.8,w:LW,h:WING-21.8}];
@@ -299,11 +299,12 @@ const LAYOUTS=[
     const centered=(a,b,y,f)=>{const n=Math.max(0,Math.floor((b-a-0.5)/W)),x0=a+(b-a-n*W)/2;for(let i=0;i<n;i++)c.push(H(x0+i*W,y,f));};
     centered(C+D,R-C-D,0.45+C,"n");centered(LW,R-C-D,L-C-D,"s");
     return {c};}},
-  {name:"Pinwheel",sum:"Four desks spin around a shared center, with wall desks on the right and along the stair wall.",pros:["Distinctive hub in the middle of the room", "Cables gather at one point in the pod"],cons:["The pinwheel takes a lot of floor for four seats"],build(W,D){const c=[],st=0.25,T=W+D,ox=3.35,oy=Math.max(0.45+C,7.05-D);
+  {name:"Pinwheel",sum:"Four desks spin around a shared center, with desks along the top wall, in the upper-left corner, on the right wall and by the stairs.",pros:["Distinctive hub in the middle of the room", "Cables gather at one point in the pod"],cons:["The pinwheel takes a lot of floor for four seats"],build(W,D){const c=[],st=0.25,T=W+D,ox=3.5,oy=0.45+D+5; // pod sits 5 ft below the top-wall desks
     c.push(H(ox,oy,"n"),V(ox+W,oy,"e"),H(ox+D,oy+W,"s"),V(ox,oy+D,"w"));
+    c.push(V(0,0.45,"e")); // upper-left corner
+    for(let x=D+C;x+W<=R;x+=st)c.push(H(x,0.45,"s")); // along the top wall
     for(let y=0.6;y+W<=L;y+=st)c.push(V(R-D,y,"w"));
     for(let x=LW+0.25;x+W<=R-D-C;x+=st)c.push(H(x,L-D,"n"));
-    for(let x=0;x+W<=R;x+=st)c.push(H(x,0.45,"s"));
     for(let y=oy+T+C;y+W<=AL0;y+=st)c.push(V(0,y,"e"));
     return {c};}},
   {name:"Window Bar",sum:"A run of desks along the window wall, a back-to-back bench across the middle, and a pair by the stairs.",pros:["The best seats get the window light", "Left side stays open as a walkway"],cons:["Window seats face the wall", "Bench seats face each other"],build(W,D){const c=[],st=0.25,per=Math.max(1,Math.floor((R-3.5)/W)),x0=R-per*W,by=0.45+D+5;
