@@ -1,0 +1,538 @@
+<title>Upstairs FiCiHi Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a drafting-office memo — summary ask up top, desk options as spec cards, a to-scale plan of the pick, then cost and build plan */
+:root{
+  --paper:#f3f4f1; --sheet:#fbfbf9; --ink:#1d2a33; --muted:#5d6b73; --grid:#dfe3e0; --rule:#c9cfcc;
+  --desk:#2f6f8f; --desk-fill:#d6e6ee; --chair:#8a9aa3;
+  --ok:#2e7d4f; --ok-bg:#dcefe3; --warn:#a8650f; --warn-bg:#f6e8d2; --bad:#b03a2e; --bad-bg:#f5dcd8;
+  --hatch:#b7bfbb;
+  --t1:#2f6f8f; --t1f:#d6e6ee; --t2:#a8650f; --t2f:#f6e8d2; --t3:#6b4fa0; --t3f:#e6def3; --t4:#2e7d4f; --t4f:#dcefe3;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#12181c; --sheet:#182127; --ink:#e3e9ec; --muted:#93a2aa; --grid:#243037; --rule:#33424b;
+  --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#6f828c;
+  --ok:#6cc595; --ok-bg:#16301f; --warn:#e0a24f; --warn-bg:#33270f; --bad:#ef7b6e; --bad-bg:#3a1a16;
+  --hatch:#3c4a52; --t1:#7fbbd8; --t1f:#1f3a4a; --t2:#e0a24f; --t2f:#3a2a12; --t3:#b8a2e6; --t3f:#2c2440; --t4:#6cc595; --t4f:#16301f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12181c; --sheet:#182127; --ink:#e3e9ec; --muted:#93a2aa; --grid:#243037; --rule:#33424b;
+  --desk:#7fbbd8; --desk-fill:#1f3a4a; --chair:#6f828c;
+  --ok:#6cc595; --ok-bg:#16301f; --warn:#e0a24f; --warn-bg:#33270f; --bad:#ef7b6e; --bad-bg:#3a1a16;
+  --hatch:#3c4a52; --t1:#7fbbd8; --t1f:#1f3a4a; --t2:#e0a24f; --t2f:#3a2a12; --t3:#b8a2e6; --t3f:#2c2440; --t4:#6cc595; --t4f:#16301f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:32px 64px;display:grid;gap:34px}
+section{display:grid;gap:14px;min-width:0}
+.eyebrow{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--muted);font-weight:600}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(32px,4.6vw,46px);line-height:1.05;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:700;font-size:25px;margin:0;letter-spacing:.01em;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:700;font-size:19px;margin:0;line-height:1.2}
+p{margin:0;max-width:70ch}
+a{color:var(--desk)}
+.muted{color:var(--muted)}
+.small{font-size:13.5px;color:var(--muted)}
+.memo{display:grid;grid-template-columns:auto 1fr;gap:2px 16px;font-size:14px;margin-top:6px}
+.memo dt{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.memo dd{margin:0}
+.ask{background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--desk);border-radius:6px;padding:18px 20px;display:grid;gap:12px}
+.ask ol{margin:0;padding-left:20px;display:grid;gap:6px}
+.figs{display:flex;flex-wrap:wrap;gap:10px 28px}
+.fig{display:grid}
+.fig b{font-family:var(--f-mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.fig span{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--muted);font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;display:grid;gap:10px;align-content:start;min-width:0}
+.card.pick{border-color:var(--desk);box-shadow:0 0 0 1px var(--desk)}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:14px}
+.spec dt{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);font-weight:600;padding-top:2px}
+.spec dd{margin:0;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.pill{font-family:var(--f-mono);font-size:12px;padding:3px 8px;border-radius:999px;white-space:nowrap;border:1px solid transparent;display:inline-block}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.info{border-color:var(--rule);color:var(--muted)}
+.pill.pickp{background:var(--desk);color:var(--sheet)}
+.planrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:820px){.planrow{grid-template-columns:1fr}}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:10px;overflow-x:auto}
+.sheet svg{display:block;width:100%;height:auto;min-width:300px}
+svg text{font-family:var(--f-display)}
+.tbl-wrap{overflow-x:auto;background:var(--sheet);border:1px solid var(--rule);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 12px;border-bottom:1px solid var(--rule);text-align:left;white-space:nowrap}
+th{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:12.5px;color:var(--muted);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+tr.pick td{background:var(--desk-fill)}
+tr.total td{font-weight:600;border-bottom:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+ul.tight{margin:0;padding-left:18px;display:grid;gap:4px}
+.k{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:12.5px;font-weight:600;color:var(--muted)}
+.btn{font:inherit;font-weight:500;font-size:14px;cursor:pointer;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);padding:6px 12px;border-radius:4px}
+.btn:hover:not(:disabled){border-color:var(--desk)}
+.btn.primary{background:var(--desk);border-color:var(--desk);color:var(--sheet)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--desk);outline-offset:2px}
+.editbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.editor{background:var(--sheet);border:1px dashed var(--desk);border-radius:6px;padding:16px;display:grid;gap:16px}
+.editor fieldset{border:1px solid var(--rule);border-radius:6px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:10px 14px;margin:0;min-width:0}
+.editor legend{font-family:var(--f-display);font-weight:700;font-size:16px;padding:0 4px}
+.f{display:grid;gap:3px}
+.f label{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.07em;font-size:11.5px;color:var(--muted);font-weight:600}
+.f input,.f select{font:inherit;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;min-width:0}
+.f input[type=number]{width:96px;font-family:var(--f-mono);font-size:13.5px}
+.f.wide{flex:1 1 240px}
+.f.wide input{width:100%}
+.note{font-size:13.5px;color:var(--muted);border-left:3px solid var(--rule);padding-left:10px}
+.missing{color:var(--warn)}
+.mixrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule)}
+.mixrow:last-child{border-bottom:none}
+.sw{width:16px;height:12px;border-radius:2px;border:1.5px solid;display:inline-block}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:30px;height:30px;padding:0;font-size:17px;line-height:1}
+.step b{font-family:var(--f-mono);min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
+.mixpanel{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:6px 14px}
+#mixPlan [data-slot]{cursor:pointer}
+#mixPlan [data-slot]:focus-visible{outline:none}
+#mixPlan [data-slot]:focus-visible rect.dk{stroke-width:0.16}
+.card.sel{cursor:pointer}
+.card.sel:hover{border-color:var(--desk)}
+.card.sel[aria-pressed="true"]{background:var(--desk-fill);border-color:var(--desk)}
+.card.sel:focus-visible{outline:2px solid var(--desk);outline-offset:2px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{font:inherit;font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.02em;cursor:pointer;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);padding:6px 11px;border-radius:4px;display:flex;gap:8px;align-items:center}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tab .n{font-family:var(--f-mono);font-size:12px;opacity:.8}
+.tab .n.short{color:var(--bad)}
+.tab[aria-selected="true"] .n.short{color:var(--paper)}
+td.c{font-family:var(--f-mono);text-align:center;cursor:pointer;font-variant-numeric:tabular-nums}
+td.c:hover{outline:1px solid var(--desk)}
+td.c.ok{color:var(--ok);font-weight:600}
+td.c.warn{color:var(--warn)}
+td.c.bad{color:var(--bad)}
+td.c.on{background:var(--desk-fill)}
+.delta{font-family:var(--f-mono);font-size:12.5px}
+.delta.up{color:var(--bad)} .delta.down{color:var(--ok)}
+.cmp{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px}
+.cmp dt{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);font-weight:600;padding-top:2px}
+.cmp dd{margin:0;font-family:var(--f-mono);font-size:13.5px;font-variant-numeric:tabular-nums}
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:6px">
+    <div class="eyebrow">Proposal · Upstairs office furniture</div>
+    <h1>Upstairs FiCiHi Plan</h1>
+    <dl class="memo">
+      <dt>To</dt><dd>Islay</dd>
+      <dt>From</dt><dd>Genna</dd>
+      <dt>Re</dt><dd>Desks and chairs for 10 seats upstairs, and how they get built</dd>
+    </dl>
+  </header>
+
+  <section class="ask" aria-labelledby="ask-h">
+    <h2 id="ask-h">Reorganization plan</h2>
+    <ol>
+      <li>Purchase <b id="askQty">10</b> standing desks, <b id="askChairs">10</b> office chairs and <b id="askBall">1</b> balance ball chair for the upstairs room.</li>
+      <li>Desk: <b id="askPick">FiCiHi</b>, 40″ × 24″, $142.49 each.</li>
+      <li>Layout: still being decided. The options are compared below.</li>
+      <li>Assemble them either with a hired handyman or during a catered build evening with the BDRs. Recommended: the build evening, with a handyman as backup.</li>
+      <li>Consider one addition requested by the team: a walking pad (see Additional asks).</li>
+    </ol>
+    <p><b>Projected completion: Friday, October 16.</b> That is ahead of the sales team's arrival the following week, so the room is ready to seat them comfortably.</p>
+    <div class="figs" id="askFigs"></div>
+    <p class="small" id="syncNote">Loading the saved prices…</p>
+  </section>
+
+  <section aria-labelledby="add-h">
+    <h2 id="add-h">Additional asks</h2>
+    <div style="display:grid;gap:6px">
+      <h3>A ball chair</h3>
+      <p>One balance ball chair anyone can swap into for part of the day. People will enjoy it, and it encourages active sitting: small, constant movements keep the core working and ease the stiffness of sitting still. It's included in the budget below.</p>
+    </div>
+    <div style="display:grid;gap:6px">
+      <h3>A walking pad</h3>
+      <p>The BDRs are currently competing for the most SQLs each month, and the prize is a standing desk. Once everyone has a standing desk, that prize needs a successor. The team was polled on what else they would like upstairs, and the answer was unanimous: a walking pad to use under a standing desk.</p>
+      <p>The exact model is still being chosen, with a focus on options that are inexpensive and quiet enough for calls. Quiet under-desk walking pads typically run about $100–$300. <a href="https://www.amazon.com/dp/B0GGB9BV77" target="_blank" rel="noopener">Here is an example</a> of the kind being considered. It is not included in the totals below yet.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="opt-h">
+    <div style="display:grid;gap:4px">
+      <h2 id="opt-h">The desk</h2>
+      <p class="small">“Fits” is the most of this desk the upstairs room can seat in any of the eight layouts.</p>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section aria-labelledby="plan-h">
+    <div style="display:grid;gap:4px">
+      <h2 id="plan-h">Layout options</h2>
+      <p class="small">Pick a layout to see the FiCiHi desks drawn to scale in the room. The number on each tab is how many desks that layout seats.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Desk" id="deskTabs" hidden></div>
+    <div class="tabs" role="tablist" aria-label="Layout" id="layTabs"></div>
+    <div class="planrow">
+      <div class="sheet"><svg id="plan" role="img" aria-label="Floor plan of the upstairs room with the recommended desks"></svg></div>
+      <div style="display:grid;gap:12px;min-width:0" id="planNotes"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="cost-h">
+    <div style="display:grid;gap:4px">
+      <h2 id="cost-h">Furniture cost</h2>
+      <p class="small" id="costNote"></p>
+    </div>
+    <div class="tbl-wrap"><table id="costTbl"></table></div>
+    <div class="cards" id="seatCards"></div>
+  </section>
+
+  <section aria-labelledby="build-h">
+    <div style="display:grid;gap:4px">
+      <h2 id="build-h">Getting them built</h2>
+      <p id="buildIntro"></p>
+    </div>
+    <div class="two" id="buildCards"></div>
+    <p class="note" id="buildRec"></p>
+  </section>
+
+  <section aria-labelledby="tot-h">
+    <h2 id="tot-h">Total budget</h2>
+    <div class="tbl-wrap"><table id="totTbl"></table></div>
+  </section>
+
+  <section aria-labelledby="next-h">
+    <h2 id="next-h">If approved</h2>
+    <ul class="tight">
+      <li><b>Immediately:</b> Order everything in one Amazon order so it arrives together. Hold the boxes downstairs until build day.</li>
+      <li><b>Build day:</b> One evening. Teams of two build the desks in the upstairs room in the chosen layout, so nothing heavy moves twice.</li>
+      <li><b>Same day:</b> Run power, check every desk raises and lowers, break down boxes for recycling.</li>
+      <li><b>By Friday, October 16:</b> Room complete and ready before the sales team arrives the following week.</li>
+    </ul>
+  </section>
+
+</div>
+
+<script>
+(function(){
+/* ---------- room geometry, copied from the Upstairs Desk Plan ---------- */
+const R=17+8/12, L=23+3/12, LW=R-(10+4/12), C=3;
+const WING=L+6+7/12, OPEN=2+10/12, AL1=WING-(7+8/12), AL0=AL1-(5+8/12);
+const OBST=[
+  {x:0,y:WING-(4+2/12),w:4+1/12,h:4+2/12},
+  {x:2+10/12,y:1.375+5+2/12,w:5.5/12,h:5.5/12},
+  {x:R-(1+8/12),y:0,w:1+8/12,h:1.375},
+  {x:R-8/12,y:14.5,w:8/12,h:1+2.5/12},
+  {x:0,y:0,w:4,h:5/12}
+];
+const KEEP=[{x:0,y:AL0,w:3.5,h:WING-AL0},{x:0,y:21.8,w:LW,h:WING-21.8}];
+const H=(x,y,f)=>({x,y,o:"h",f}), V=(x,y,f)=>({x,y,o:"v",f});
+const LAYOUTS=[
+  {name:"Ring Road",sum:"Desks along the side and top walls facing the wall, with a back-to-back pair in the middle. The center stays open.",pros:["Monitors face the wall, so cables are easy and screens are private", "Open center for a standing huddle"],cons:["People sit with their backs to the room", "The wall column splits the right-hand row"],build(W,D){const c=[];
+    for(let y=0.6;y+W<=AL0-0.2;y+=W)c.push(V(0,y,"e"));
+    for(let y=1.5;y+W<=14.4;y+=W)c.push(V(R-D,y,"w"));
+    for(let y=16.0;y+W<=L;y+=W)c.push(V(R-D,y,"w"));
+    for(let x=D+C;x+W<=R-D-C;x+=W)c.push(H(x,0.45,"s"));
+    const span=R-2*D-2*C,cols=Math.max(0,Math.floor((span-1)/W)),x0=(R-cols*W)/2;
+    for(let y=0.45+D+5;y+2*D+C<=21.8;y+=2*D+5)for(let i=0;i<cols;i++){c.push(H(x0+i*W,y,"n"));c.push(H(x0+i*W,y+D,"s"));}
+    for(let x=LW+0.25;x+W<=R-D-C;x+=W)c.push(H(x,L-D,"n"));
+    return {c};}},
+  {name:"Pod Squad",sum:"Two pods of back-to-back desks on the left, stacked so they work around the post and the door, plus a row of desks on the right wall. Smaller desks can also add a desk along the stair wall.",pros:["Pods suit small teams that talk all day", "Clear walkway from the entry to every seat"],cons:["Pod desks face each other, so privacy screens may help", "Middle desks need floor boxes or cable trays for power"],build(W,D){const c=[],pitch=2*D+4.75;
+    for(let y=0.45+C;y+2*D+C<=L;y+=pitch){c.push(H(0,y,"n"),H(W,y,"n"),H(0,y+D,"s"),H(W,y+D,"s"));}
+    for(let y=1.5;y+W<=14.4;y+=W)c.push(V(R-D,y,"w"));
+    for(let y=16.0;y+W<=L;y+=W)c.push(V(R-D,y,"w"));
+    for(let x=LW+0.25;x+W<=R-D-C;x+=0.25)c.push(H(x,L-D,"n"));
+    const ax=2*W,aw=R-D-C-ax;
+    return {c,rect:{x:ax,y:0.6,w:Math.max(aw,0),h:21}};}},
+  {name:"Lecture Hall",sum:"Classroom rows facing the window wall, with a walkway down the right side.",pros:["Nobody faces anyone else's screen", "One power run per row"],cons:["Back rows walk behind others to sit", "The bottom row loses seats to the entry"],build(W,D){const c=[],per=Math.max(1,Math.floor((R-3)/W));
+    for(let y=0.5;y+D+C<=L;y+=D+3.5)for(let i=0;i<per;i++)c.push(H(i*W,y,"s"));
+    return {c,rect:{x:per*W,y:0.6,w:R-per*W,h:L-0.6}};}},
+  {name:"The Backbone",sum:"One row on the left wall plus a long double row down the middle. The walkway runs along the right wall.",pros:["Fits the most desks", "The spine shares one power and data run"],cons:["Back-to-back chairs with about 5\u00bd ft between desks", "Feels denser and less private"],build(W,D){const c=[];
+    for(let y=0.6;y+W<=AL0-0.2;y+=W)c.push(V(0,y,"e"));
+    const sx=D+5.5;
+    for(let y=0.45;y+W<=21.8;y+=W){c.push(V(sx,y,"w"),V(sx+D,y,"e"));}
+    const ax=sx+2*D+C;
+    return {c,rect:{x:ax,y:0.6,w:Math.max(R-ax,0),h:L-0.6}};}},
+  {name:"Trading Floor",sum:"Two benches across the room, each with desks on both sides.",pros:["Seats a lot of people", "Short power runs inside each bench"],cons:["Least privacy: everyone faces someone", "Middle seats are hard to reach"],build(W,D){const c=[],per=Math.max(1,Math.floor((R-3)/W)),pitch=2*D+4.75;
+    for(let y=0.45+C;y+2*D+C<=L;y+=pitch)for(let i=0;i<per;i++){c.push(H(i*W,y,"n"),H(i*W,y+D,"s"));}
+    return {c,rect:{x:per*W,y:0.6,w:R-per*W,h:L-0.6}};}},
+  {name:"The Horseshoe",sum:"A U of desks pulled 3 ft off the walls, so everyone faces into the room.",pros:["Everyone can see each other", "Nobody walks behind anyone's chair"],cons:["Every screen faces the room", "Power has to reach desks away from the walls"],build(W,D){const c=[],st=0.25;
+    for(let y=0.6;y+W<=AL0;y+=st)c.push(V(C,y,"w"));
+    for(let y=0.6;y+W<=L;y+=st)c.push(V(R-C-D,y,"e"));
+    const centered=(a,b,y,f)=>{const n=Math.max(0,Math.floor((b-a-0.5)/W)),x0=a+(b-a-n*W)/2;for(let i=0;i<n;i++)c.push(H(x0+i*W,y,f));};
+    centered(C+D,R-C-D,0.45+C,"n");centered(LW,R-C-D,L-C-D,"s");
+    return {c};}},
+  {name:"Pinwheel",sum:"Four desks spin around a shared center, with wall desks on the right and along the stair wall.",pros:["Distinctive hub in the middle of the room", "Cables gather at one point in the pod"],cons:["The pinwheel takes a lot of floor for four seats"],build(W,D){const c=[],st=0.25,T=W+D,ox=3.35,oy=Math.max(0.45+C,7.05-D);
+    c.push(H(ox,oy,"n"),V(ox+W,oy,"e"),H(ox+D,oy+W,"s"),V(ox,oy+D,"w"));
+    for(let y=0.6;y+W<=L;y+=st)c.push(V(R-D,y,"w"));
+    for(let x=LW+0.25;x+W<=R-D-C;x+=st)c.push(H(x,L-D,"n"));
+    for(let x=0;x+W<=R;x+=st)c.push(H(x,0.45,"s"));
+    for(let y=oy+T+C;y+W<=AL0;y+=st)c.push(V(0,y,"e"));
+    return {c};}},
+  {name:"Window Bar",sum:"A run of desks along the window wall, a back-to-back bench across the middle, and a pair by the stairs.",pros:["The best seats get the window light", "Left side stays open as a walkway"],cons:["Window seats face the wall", "Bench seats face each other"],build(W,D){const c=[],st=0.25,per=Math.max(1,Math.floor((R-3.5)/W)),x0=R-per*W,by=0.45+D+5;
+    for(let x=0;x+W<=R;x+=st)c.push(H(x,0.45,"s"));
+    for(let i=0;i<per;i++)c.push(H(x0+i*W,by,"n"),H(x0+i*W,by+D,"s"));
+    for(let x=LW+0.25;x+W<=R;x+=st)c.push(H(x,L-D,"n"));
+    return {c};}}
+];
+const E=0.01;
+const ov=(a,b)=>a.x<b.x+b.w-E&&b.x<a.x+a.w-E&&a.y<b.y+b.h-E&&b.y<a.y+a.h-E;
+const inside=r=>r.x>=-E&&r.y>=-E&&r.x+r.w<=R+E&&r.y+r.h<=L+E;
+const blocked=r=>OBST.some(o=>ov(r,o))||KEEP.some(k=>ov(r,k));
+const zone=(d,f)=>f==="n"?{x:d.x,y:d.y-C,w:d.w,h:C}:f==="s"?{x:d.x,y:d.y+d.h,w:d.w,h:C}:f==="e"?{x:d.x+d.w,y:d.y,w:C,h:d.h}:{x:d.x-C,y:d.y,w:C,h:d.h};
+function solve(lay,W,D){
+  const {c,rect}=lay.build(W,D),acc=[];
+  for(const k of c){
+    const desk=k.o==="h"?{x:k.x,y:k.y,w:W,h:D}:{x:k.x,y:k.y,w:D,h:W}, chair=zone(desk,k.f);
+    if(!inside(desk)||!inside(chair)||blocked(desk)||blocked(chair))continue;
+    if(rect&&ov(desk,rect))continue;
+    if(acc.some(a=>ov(desk,a.desk)||ov(desk,a.chair)||ov(chair,a.desk)))continue;
+    acc.push({desk,chair,f:k.f});
+  }
+  return acc;
+}
+const solveCache={};
+function seatsFor(wIn,dIn,li){ if(!(wIn>=24&&dIn>=16))return null; const k=wIn+"x"+dIn+"x"+li; return solveCache[k]||(solveCache[k]=solve(LAYOUTS[li],wIn/12,dIn/12)); }
+const fitCache={};
+function bestFit(wIn,dIn){
+  if(!(wIn>=24&&dIn>=16))return null;
+  const key=wIn+"x"+dIn+"q"+S.deskQty; if(fitCache[key])return fitCache[key];
+  let best=null;
+  LAYOUTS.forEach((l,i)=>{const s=seatsFor(wIn,dIn,i); if(!best||s.length>best.n)best={n:s.length,i,seats:s};});
+  const ten=LAYOUTS.filter((l,i)=>seatsFor(wIn,dIn,i).length>=S.deskQty).map(l=>l.name);
+  best.ten=ten; return fitCache[key]=best;
+}
+
+/* ---------- state: loaded from the shared store ---------- */
+const BLANK={deskQty:10,taxPct:0,pick:"",desks:[],chair:{name:"Office chair",url:"",price:null,qty:10},ball:{name:"Balance ball chair",url:"",price:null,qty:1},
+  build:{rate:65,hrsDesk:1.25,hrsChair:0.4,minHrs:0,perPerson:0,food:300,people:10}};
+let S=JSON.parse(JSON.stringify(BLANK));
+let canWrite=false, docRef=null, loaded=false;
+let viewId=null, viewLayout=null; // per-viewer: which desk and layout the plan shows
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num=v=>typeof v==="number"&&isFinite(v);
+const money=v=>num(v)?"$"+v.toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:0}):"—";
+const money2=v=>num(v)?"$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):"price needed";
+const inch=v=>num(v)?(String(v).replace(".5","½"))+"″":"?";
+const STORAGE={none:"No storage",drawer:"Drawer",drawers:"Drawers",cubbies:"Open cubbies",shelfdrawers:"Drawers + shelf"};
+
+function seatCost(){ const c=S.chair,b=S.ball; return {chairs:num(c.price)?c.price*c.qty:null, ball:num(b.price)?b.price*b.qty:null}; }
+function optionCost(d){
+  if(!num(d.price))return null;
+  const sc=seatCost(), sub=d.price*S.deskQty+(sc.chairs||0)+(sc.ball||0);
+  const tax=sub*(S.taxPct||0)/100; return {desks:d.price*S.deskQty,sub,tax,total:sub+tax,partial:sc.chairs==null||sc.ball==null};
+}
+function pickDesk(){
+  if(S.pick){const p=S.desks.find(d=>d.id===S.pick); if(p)return {d:p,auto:false};}
+  const ok=S.desks.filter(d=>d.storage!=="none"&&num(d.price)&&(bestFit(d.w,d.d)||{n:0}).n>=S.deskQty);
+  ok.sort((a,b)=>a.price-b.price);
+  if(ok[0])return {d:ok[0],auto:true};
+  const any=S.desks.filter(d=>d.storage!=="none")[0]||S.desks[0];
+  return any?{d:any,auto:true}:null;
+}
+function buildCosts(){
+  const b=S.build, hrs=S.deskQty*b.hrsDesk+S.chair.qty*b.hrsChair+S.ball.qty*0.25;
+  const hire=Math.max(hrs,b.minHrs||0)*b.rate;
+  const bdr=b.perPerson*b.people+b.food;
+  return {hrs,hire,bdr};
+}
+
+/* ---------- render ---------- */
+function fitPill(d){
+  const f=bestFit(d.w,d.d);
+  if(!f)return `<span class="pill warn">size needed</span>`;
+  const cls=f.n>=S.deskQty?"ok":f.n>=S.deskQty-1?"warn":"bad";
+  return `<span class="pill ${cls}">fits ${f.n}</span>`;
+}
+function render(){
+  const pk=pickDesk(), pd=pk&&pk.d, sc=seatCost(), bc=buildCosts();
+  const vd=S.desks.find(d=>d.id===viewId)||pd;
+  $("askQty").textContent=S.deskQty; $("askChairs").textContent=S.chair.qty; $("askBall").textContent=S.ball.qty;
+  $("askPick").textContent=pd?pd.name:"the option marked below";
+
+  // desk cards
+  $("cards").innerHTML=S.desks.length?S.desks.map(d=>{
+    const f=bestFit(d.w,d.d), isPick=pd&&pd.id===d.id;
+    const isView=vd&&vd.id===d.id;
+    return `<article class="card sel${isPick?" pick":""}" role="button" tabindex="0" aria-pressed="${isView}" data-desk="${esc(d.id)}">
+      <div class="top"><h3>${esc(d.name)}</h3>${isPick?`<span class="pill pickp">selected</span>`:""}</div>
+      <dl class="spec">
+        <dt>Price</dt><dd class="${num(d.price)?"":"missing"}">${money2(d.price)}</dd>
+        <dt>Top</dt><dd class="${num(d.w)&&num(d.d)?"":"missing"}">${num(d.w)&&num(d.d)?`${inch(d.w)} × ${inch(d.d)}`:"size needed"}</dd>
+        <dt>Storage</dt><dd>${esc(STORAGE[d.storage]||d.storage||"—")}</dd>
+        <dt>Room</dt><dd>${fitPill(d)}${f&&f.ten.length?` <span class="small">in ${f.ten.length} of 8 layouts</span>`:""}</dd>
+      </dl>
+      ${d.why?`<p class="small" style="color:var(--ink)">${esc(d.why)}</p>`:""}
+      ${d.url?`<a href="${esc(d.url)}" target="_blank" rel="noopener" class="small">View on Amazon</a>`:""}
+      <span class="small">${isView?"Shown in the plan below":"Click to see it in the room"}</span>
+    </article>`;}).join(""):`<p class="small">The desk options load from the saved proposal.</p>`;
+
+  // plan: the desk being viewed, in the chosen layout
+  renderPlan(vd,pd);
+
+  // cost table
+  const rows=S.desks.map(d=>{const c=optionCost(d), isPick=pd&&pd.id===d.id;
+    return `<tr class="${isPick?"pick":""}"><td>${esc(d.name)}${isPick?" ★":""}</td>
+      <td class="n">${num(d.price)?money2(d.price):"—"}</td><td class="n">${c?money(c.desks):"—"}</td>
+      <td class="n">${money(sc.chairs)}</td><td class="n">${money(sc.ball)}</td>
+      ${S.taxPct?`<td class="n">${c?money(c.tax):"—"}</td>`:""}
+      <td class="n"><b>${c?money(c.total):"—"}</b></td></tr>`;}).join("");
+  $("costTbl").innerHTML=`<thead><tr><th>Desk</th><th class="n">Per desk</th><th class="n">${S.deskQty} desks</th><th class="n">${S.chair.qty} chairs</th><th class="n">${S.ball.qty} ball chair</th>${S.taxPct?`<th class="n">Tax ${S.taxPct}%</th>`:""}<th class="n">Total</th></tr></thead><tbody>${rows}</tbody>`;
+  const missing=S.desks.filter(d=>!num(d.price)).length+(num(S.chair.price)?0:1)+(num(S.ball.price)?0:1);
+  $("costNote").innerHTML=`Amazon list prices${S.taxPct?"":" before tax"}. Shipping assumed free with Prime. Prices on Amazon change often, so confirm the cart total when ordering.${missing?` <span class="missing">${missing} price${missing>1?"s":""} still to add.</span>`:""}`;
+  $("seatCards").innerHTML=[["chair",S.chair,"Same chair at every desk."],["ball",S.ball,"One active-sitting option anyone can swap in."]].map(([k,c,why])=>`
+    <article class="card"><div class="top"><h3>${esc(c.name)}</h3><span class="pill info">× ${c.qty}</span></div>
+      <dl class="spec"><dt>Price</dt><dd class="${num(c.price)?"":"missing"}">${money2(c.price)}</dd><dt>Line total</dt><dd>${num(c.price)?money2(c.price*c.qty):"—"}</dd></dl>
+      <p class="small">${esc(c.why||why)}</p>
+      ${c.url?`<a href="${esc(c.url)}" target="_blank" rel="noopener" class="small">View on Amazon</a>`:""}</article>`).join("");
+
+  // build
+  const b=S.build;
+  $("buildIntro").textContent=`Electric desks with drawers take about ${b.hrsDesk} hours each to build, and an office chair about ${Math.round(b.hrsChair*60)} minutes. That is roughly ${Math.round(bc.hrs)} hours of assembly in total, which is too much for one person to fit around a normal week.`;
+  $("buildCards").innerHTML=`
+    <article class="card"><div class="top"><h3>A · Hire a handyman</h3><span class="pill info">≈ ${money(bc.hire)}</span></div>
+      <p class="small" style="color:var(--ink)">Book furniture assembly through TaskRabbit, Thumbtack or a local handyman at about ${money(b.rate)}/hr for ~${Math.round(bc.hrs)} hours.</p>
+      <div><div class="k">Good</div><ul class="tight small"><li>No team time lost</li><li>Experienced builders, fewer wobbly desks</li></ul></div>
+      <div><div class="k">Watch out</div><ul class="tight small"><li>Most expensive route</li><li>Need someone in the office to let them in</li><li>Quotes vary, so get two before booking</li></ul></div>
+    </article>
+    <article class="card pick"><div class="top"><h3>B · BDR build evening</h3><span class="pill pickp">≈ ${money(bc.bdr)}</span></div>
+      <p class="small" style="color:var(--ink)">One catered evening after work. Pairs build the desks in place, then build the chairs. Food and drinks are provided for ${b.people} people (about ${money(b.food)}).</p>
+      <div><div class="k">Incentives</div><ul class="tight small"><li><b>Build it, claim it:</b> whoever builds a desk gets first pick of seats</li><li>Dinner and drinks during the build</li></ul></div>
+      <div><div class="k">Watch out</div><ul class="tight small"><li>Runs after hours, so give people a few days' notice</li><li>Have a power drill or two on hand</li></ul></div>
+    </article>`;
+  $("buildRec").innerHTML=`<b>Recommendation:</b> run the BDR build evening. It costs about ${money(Math.max(bc.hire-bc.bdr,0))} less than hiring out, gets everything built in one go, and people take better care of a desk they built and picked. If fewer than ${Math.ceil(S.deskQty/2)} people sign up, book a handyman for the remainder.`;
+
+  // totals
+  const oc=pd&&optionCost(pd);
+  const line=(l,v,cls="")=>`<tr class="${cls}"><td>${l}</td><td class="n">${v}</td></tr>`;
+  $("totTbl").innerHTML=pd?`<tbody>
+    ${line(`${S.deskQty} × ${esc(pd.name)}`,oc?money2(oc.desks):"price needed")}
+    ${line(`${S.chair.qty} × ${esc(S.chair.name)}`,num(sc.chairs)?money2(sc.chairs):"price needed")}
+    ${line(`${S.ball.qty} × ${esc(S.ball.name)}`,num(sc.ball)?money2(sc.ball):"price needed")}
+    ${S.taxPct?line(`Sales tax (${S.taxPct}%)`,oc?money2(oc.tax):"—"):""}
+    ${line("Assembly: BDR build evening",money2(bc.bdr))}
+    ${line("Total (recommended plan)",oc?money2(oc.total+bc.bdr):"—","total")}
+    ${line(`<span class="small">Same, with a handyman instead</span>`,`<span class="small">${oc?money2(oc.total+bc.hire):"—"}</span>`)}
+    </tbody>`:`<tbody><tr><td class="small">Add desk options to see the total.</td></tr></tbody>`;
+
+  // ask figs
+  $("askFigs").innerHTML=oc?`
+    <div class="fig"><b>${money(oc.total)}</b><span>Furniture</span></div>
+    <div class="fig"><b>${money(bc.bdr)}</b><span>Build evening</span></div>
+    <div class="fig"><b>${money(oc.total+bc.bdr)}</b><span>Total ask</span></div>`:"";
+  if(loaded) $("syncNote").textContent=oc&&!oc.partial?"":"Some prices are still being confirmed; totals cover only the prices entered so far.";
+  if(loaded&&oc&&!oc.partial) $("syncNote").hidden=true; else $("syncNote").hidden=false;
+}
+
+function selectDesk(id,li){ viewId=id; viewLayout=li==null?null:li; render(); }
+function renderPlan(vd,pd){
+  $("deskTabs").innerHTML=S.desks.map(d=>`<button class="tab" role="tab" type="button" aria-selected="${vd&&vd.id===d.id}" data-desk="${esc(d.id)}"><span>${esc(d.name.split(/[,(]/)[0].trim())}</span><span class="n">${num(d.price)?money(d.price):"$?"}</span></button>`).join("");
+  const ok=vd&&num(vd.w)&&num(vd.d);
+  const f=ok&&bestFit(vd.w,vd.d);
+  const li=ok?(viewLayout!=null?viewLayout:f.i):0;
+  $("layTabs").innerHTML=LAYOUTS.map((l,i)=>{const n=ok?seatsFor(vd.w,vd.d,i).length:null;
+    return `<button class="tab" role="tab" type="button" aria-selected="${ok&&i===li}" data-lay="${i}" ${ok?"":"disabled"}><span>${l.name}</span><span class="n${n!=null&&n<S.deskQty?" short":""}">${n??"–"}</span></button>`;}).join("");
+  const seats=ok?seatsFor(vd.w,vd.d,li):null;
+  drawPlan(seats);
+  if(!vd){ $("planNotes").innerHTML=`<p class="small">Desk options load from the saved proposal.</p>`; return; }
+  const lay=LAYOUTS[li], n=seats?seats.length:0;
+  const oc=optionCost(vd), pc=pd&&optionCost(pd), same=pd&&pd.id===vd.id;
+  const dlt=(a,b,fmt)=>{ if(!num(a)||!num(b)||same) return ""; const x=a-b; if(Math.abs(x)<0.005) return ` <span class="delta">same</span>`; return ` <span class="delta ${x>0?"up":"down"}">${x>0?"+":"−"}${fmt(Math.abs(x))}</span>`; };
+  const area=d=>num(d.w)&&num(d.d)?d.w*d.d/144:null;
+  const status=!ok?`<span class="pill warn">add width and depth to draw it</span>`:n>=S.deskQty?`<span class="pill ok">${n} fit · need ${S.deskQty}</span>`:`<span class="pill ${n>=S.deskQty-1?"warn":"bad"}">${n} fit · ${S.deskQty-n} short</span>`;
+  $("planNotes").innerHTML=`
+    <div style="display:grid;gap:4px"><h3>${esc(vd.name)}</h3><p class="small">${ok?esc(lay.name)+" layout. "+esc(lay.sum):"Size not entered yet."}</p></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${status}${same?`<span class="pill pickp">selected</span>`:""}<span class="pill info">${esc(STORAGE[vd.storage]||"—")}</span></div>
+    <dl class="cmp">
+      <dt>Desk size</dt><dd>${ok?`${inch(vd.w)} × ${inch(vd.d)}`:"—"}${!same&&pd&&ok&&num(pd.w)?` <span class="small">vs ${inch(pd.w)} × ${inch(pd.d)}</span>`:""}</dd>
+      <dt>Desktop</dt><dd>${num(area(vd))?area(vd).toFixed(1)+" sq ft":"—"}${pd?dlt(area(vd),area(pd),v=>v.toFixed(1)+" sq ft"):""}</dd>
+      <dt>Per desk</dt><dd>${money2(vd.price)}${pd?dlt(vd.price,pd.price,money2):""}</dd>
+      <dt>${S.deskQty} desks</dt><dd>${oc?money2(oc.desks):"—"}${pc&&oc?dlt(oc.desks,pc.desks,money):""}</dd>
+      <dt>With seating</dt><dd>${oc?money2(oc.total):"—"}${pc&&oc?dlt(oc.total,pc.total,money):""}</dd>
+    </dl>
+    ${!same&&pd?`<p class="small">Differences are against the recommended desk, ${esc(pd.name)}.</p>`:""}
+    ${ok?`<div><div class="k">Good for</div><ul class="tight small">${lay.pros.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+    <div><div class="k">Watch out for</div><ul class="tight small">${lay.cons.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:""}
+    <p class="small">To drag desks around yourself, open the <a href="https://claude.ai/artifact/1nPzFWdoEUgvZ61kt8Pfgc" target="_blank" rel="noopener">Upstairs Desk Plan</a>.</p>`;
+}
+function renderMatrix(vd){
+  const f=vd&&num(vd.w)&&num(vd.d)?bestFit(vd.w,vd.d):null;
+  const curLi=f?(viewLayout!=null?viewLayout:f.i):-1;
+  let h=`<thead><tr><th>Desk</th><th>Size</th>${LAYOUTS.map(l=>`<th style="text-align:center">${l.name}</th>`).join("")}</tr></thead><tbody>`;
+  S.desks.forEach(d=>{ const ok=num(d.w)&&num(d.d);
+    h+=`<tr><td>${esc(d.name.split(/[,(]/)[0].trim())}</td><td class="n">${ok?`${inch(d.w)}×${inch(d.d)}`:"—"}</td>`;
+    LAYOUTS.forEach((l,i)=>{ if(!ok){h+=`<td class="c">–</td>`;return;}
+      const k=seatsFor(d.w,d.d,i).length, cls=k>=S.deskQty?"ok":k>=S.deskQty-1?"warn":"bad", on=vd&&vd.id===d.id&&i===curLi?" on":"";
+      h+=`<td class="c ${cls}${on}" tabindex="0" data-desk="${esc(d.id)}" data-lay="${i}">${k}</td>`; });
+    h+="</tr>"; });
+  $("matrix").innerHTML=h+"</tbody>";
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest("a"))return;
+  const t=e.target.closest("[data-desk],[data-lay]"); if(!t||t.closest("#editor"))return;
+  if(t.dataset.desk&&t.dataset.lay!=null){ selectDesk(t.dataset.desk,+t.dataset.lay); return; }
+  if(t.dataset.desk){ const fromCard=t.classList.contains("card"); selectDesk(t.dataset.desk,null); if(fromCard){ const el=$("plan-h"); el&&el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"}); } return; }
+  if(t.dataset.lay!=null){ viewLayout=+t.dataset.lay; if(!viewId){const p=pickDesk(); viewId=p&&p.d.id;} render(); }
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  const t=e.target.closest&&e.target.closest(".card.sel,td.c[data-desk]"); if(!t)return;
+  e.preventDefault(); t.click();
+});
+
+const NS="http://www.w3.org/2000/svg";
+function el(t,a,p,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p&&p.appendChild(e);return e;}
+function drawPlan(seats){ drawPlanSeats(drawRoom("plan","p"),seats); }
+function drawRoom(id,px){
+  const svg=$(id); svg.innerHTML="";
+  svg.setAttribute("viewBox","-6.4 -1.8 25.6 34.2");
+  const defs=el("defs",{},svg);
+  const pat=el("pattern",{id:px+"hatch",width:0.5,height:0.5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
+  el("line",{x1:0,y1:0,x2:0,y2:0.5,stroke:"var(--hatch)","stroke-width":0.12},pat);
+  const pat2=el("pattern",{id:px+"keep",width:0.6,height:0.6,patternUnits:"userSpaceOnUse",patternTransform:"rotate(-45)"},defs);
+  el("line",{x1:0,y1:0,x2:0,y2:0.6,stroke:"var(--bad)","stroke-width":0.06,opacity:0.6},pat2);
+  const g=el("g",{stroke:"var(--grid)","stroke-width":0.03},svg);
+  for(let x=1;x<R;x++)el("line",{x1:x,y1:0,x2:x,y2:L},g);
+  for(let y=1;y<L;y++)el("line",{x1:0,y1:y,x2:R,y2:y},g);
+  el("rect",{x:LW,y:L,width:R-LW,height:WING-L,fill:"none",stroke:"var(--muted)","stroke-width":0.06},svg);
+  for(let x=LW+1.3;x<R-0.2;x+=1.3)el("line",{x1:x,y1:L,x2:x,y2:WING,stroke:"var(--muted)","stroke-width":0.05},svg);
+  el("text",{x:(LW+R)/2,y:(L+WING)/2+0.3,"text-anchor":"middle","font-size":0.75,fill:"var(--muted)","letter-spacing":0.4},svg,"STAIRS");
+  KEEP.forEach(k=>el("rect",{x:k.x,y:k.y,width:k.w,height:k.h,fill:`url(#${px}keep)`,stroke:"var(--bad)","stroke-width":0.04,"stroke-dasharray":"0.2 0.15"},svg));
+  const wall=`M0,0 H${R-(1+8/12)} V1.375 H${R} V14.5 H${R-8/12} V${14.5+1+2.5/12} H${R} V${L} H${LW} V${WING} H0 V${AL1} H-5.25 V${AL0} H0 Z`;
+  el("path",{d:wall,fill:"none",stroke:"var(--ink)","stroke-width":0.2},svg);
+  el("line",{x1:LW,y1:WING-OPEN+0.12,x2:LW,y2:WING-0.12,stroke:"var(--sheet)","stroke-width":0.34},svg);
+  el("text",{x:LW-0.3,y:WING-OPEN/2-0.45,"text-anchor":"middle","font-size":0.55,fill:"var(--warn)"},svg,"ENTRY");
+  el("text",{x:-2.6,y:AL0-0.3,"text-anchor":"middle","font-size":0.45,fill:"var(--muted)"},svg,"DOOR");
+  OBST.forEach(o=>el("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:`url(#${px}hatch)`,stroke:"var(--ink)","stroke-width":0.05},svg));
+  ["PHONE","BOOTH"].forEach((t,k)=>el("text",{x:(4+1/12)/2,y:WING-(4+2/12)/2-0.1+k*0.6,"text-anchor":"middle","font-size":0.5,fill:"var(--ink)","font-weight":600},svg,t));
+  el("text",{x:R/2,y:-0.6,"text-anchor":"middle","font-size":0.6,fill:"var(--ink)","font-weight":600},svg,"17′ 8″");
+  el("text",{x:-5.7,y:L/2,"text-anchor":"middle","font-size":0.6,fill:"var(--ink)","font-weight":600,transform:`rotate(-90 -5.7 ${L/2})`},svg,"23′ 3″");
+  const sx=R-5,sy=WING+1.4;
+  for(let i=0;i<5;i++)el("rect",{x:sx+i,y:sy,width:1,height:0.25,fill:i%2?"var(--sheet)":"var(--ink)",stroke:"var(--ink)","stroke-width":0.03},svg);
+  el("text",{x:sx+5,y:sy+0.85,"font-size":0.45,fill:"var(--muted)","text-anchor":"end"},svg,"5 ft");
+  return svg;
+}
+function drawPlanSeats(svg,seats){
+  if(seats) seats.forEach((s,i)=>{
+    const spare=i>=S.deskQty, col=spare?"var(--muted)":"var(--desk)";
+    const z=s.chair,d=s.desk;
+    el("rect",{x:z.x,y:z.y,width:z.w,height:z.h,fill:"none",stroke:col,"stroke-width":0.04,"stroke-dasharray":"0.18 0.14",opacity:0.7},svg);
+    el("rect",{x:d.x,y:d.y,width:d.w,height:d.h,fill:spare?"none":"var(--desk-fill)",stroke:col,"stroke-width":0.08,"stroke-dasharray":spare?"0.3 0.15":"none"},svg);
+    const cx=s.f==="e"?d.x+d.w+1.1:s.f==="w"?d.x-1.1:d.x+d.w/2, cy=s.f==="s"?d.y+d.h+1.1:s.f==="n"?d.y-1.1:d.y+d.h/2;
+    if(!spare) el("circle",{cx,cy,r:0.75,fill:"var(--sheet)",stroke:"var(--chair)","stroke-width":0.07},svg);
+    el("text",{x:d.x+d.w/2,y:d.y+d.h/2+0.25,"text-anchor":"middle","font-size":0.7,"font-weight":700,fill:col},svg,spare?"+":String(i+1));
+  });
+  el("text",{x:-6.2,y:WING+1.7,"font-size":0.5,fill:"var(--muted)"},svg,"1 square = 1 ft · dashed + = spare spot");
+}
+
+S=Object.assign(JSON.parse(JSON.stringify(BLANK)),{"deskQty": 10, "taxPct": 0, "pick": "ficihi", "desks": [{"id": "ficihi", "name": "FiCiHi standing desk, 2 drawers (white)", "url": "https://www.amazon.com/dp/B0FRZKG7HD", "price": 142.49, "w": 40, "d": 24, "storage": "drawers", "why": "Two drawers plus a monitor stand and cable management, on a compact 40-inch top. List price $149.99."}], "chair": {"name": "Office chair", "url": "https://www.amazon.com/dp/B0DFGLMM6L", "price": 179, "qty": 10}, "ball": {"name": "Gaiam Classic Balance Ball Chair", "url": "https://www.amazon.com/dp/B006FFR37W", "price": 63.32, "qty": 1, "why": "One active-sitting seat anyone can swap in. Fits people 5′–5′11″, holds 300 lb, and builds in about 15 minutes."}, "build": {"rate": 65, "hrsDesk": 1.25, "hrsChair": 0.4, "minHrs": 0, "perPerson": 0, "food": 300, "people": 10}});
+loaded=true;
+render();
+})();
+</script>
