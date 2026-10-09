@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="470" fill="#ffffff"/>
+
+  <!-- ===== Panel A: uncut 50 x 25 ===== -->
+  <text x="227.5" y="30" text-anchor="middle" font-size="17" font-weight="700" fill="#1d1f22">Uncut: 50″ × 25″</text>
+  <text x="227.5" y="48" text-anchor="middle" font-size="12" fill="#b0342a">Doesn't fit: no way to get to the seats</text>
+  <!-- walls -->
+  <rect x="40" y="60" width="375" height="305" fill="#8b8b87" stroke="#1d1f22" stroke-width="1.5"/>
+  <rect x="61.25" y="81.25" width="332.5" height="262.5" fill="#f4f1ea" stroke="#1d1f22" stroke-width="1"/>
+  <!-- door opening + swing -->
+  <rect x="142.5" y="342" width="170" height="24" fill="#ffffff"/>
+  <rect x="308" y="365" width="4" height="80" fill="#1d1f22"/>
+  <path d="M152,365 A160,160 0 0 0 312,445" fill="none" stroke="#5d6268" stroke-dasharray="5 4"/>
+  <text x="227.5" y="455" text-anchor="middle" font-size="11" fill="#5d6268">door (opens out)</text>
+  <!-- screen -->
+  <rect x="190" y="82" width="75" height="5" fill="#1d1f22"/>
+  <!-- table uncut -->
+  <rect x="165" y="81.25" width="125" height="250" fill="#e9cf9f" stroke="#1d1f22" stroke-width="1.5"/>
+  <text x="227.5" y="200" text-anchor="middle" font-size="13" font-weight="700" fill="#1d1f22">table</text>
+  <text x="227.5" y="216" text-anchor="middle" font-size="11" fill="#1d1f22">50″ long</text>
+  <!-- stools -->
+  <circle cx="113" cy="160" r="37.5" fill="#ffffff" stroke="#1d1f22"/><text x="113" y="164" text-anchor="middle" font-size="11">seat</text>
+  <circle cx="342" cy="160" r="37.5" fill="#ffffff" stroke="#1d1f22"/><text x="342" y="164" text-anchor="middle" font-size="11">seat</text>
+  <!-- problem gap -->
+  <rect x="165" y="331.25" width="125" height="12.5" fill="#f6d3cf" stroke="#b0342a" stroke-width="1.5"/>
+  <line x1="300" y1="337.5" x2="345" y2="310" stroke="#b0342a" stroke-width="1.5"/>
+  <text x="348" y="306" font-size="12" font-weight="700" fill="#b0342a">2½″ gap</text>
+  <!-- blocked path -->
+  <path d="M227.5,420 V350" stroke="#b0342a" stroke-width="2.5" fill="none"/>
+  <path d="M215,362 L240,337 M240,362 L215,337" stroke="#b0342a" stroke-width="3"/>
+
+  <!-- ===== Panel B: cut to 25 x 29 ===== -->
+  <text x="667.5" y="30" text-anchor="middle" font-size="17" font-weight="700" fill="#1d1f22">Cut: 29″ × 25″, rounded end</text>
+  <text x="667.5" y="48" text-anchor="middle" font-size="12" fill="#2c7a4b">Fits: room to walk in and sit</text>
+  <rect x="480" y="60" width="375" height="305" fill="#8b8b87" stroke="#1d1f22" stroke-width="1.5"/>
+  <rect x="501.25" y="81.25" width="332.5" height="262.5" fill="#f4f1ea" stroke="#1d1f22" stroke-width="1"/>
+  <rect x="582.5" y="342" width="170" height="24" fill="#ffffff"/>
+  <rect x="748" y="365" width="4" height="80" fill="#1d1f22"/>
+  <path d="M592,365 A160,160 0 0 0 752,445" fill="none" stroke="#5d6268" stroke-dasharray="5 4"/>
+  <text x="667.5" y="455" text-anchor="middle" font-size="11" fill="#5d6268">door (opens out)</text>
+  <rect x="630" y="82" width="75" height="5" fill="#1d1f22"/>
+  <!-- table cut, rounded end -->
+  <path d="M605,81.25 V163.75 A62.5,62.5 0 0 0 730,163.75 V81.25 Z" fill="#e9cf9f" stroke="#1d1f22" stroke-width="1.5"/>
+  <text x="667.5" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#1d1f22">table</text>
+  <text x="667.5" y="166" text-anchor="middle" font-size="11" fill="#1d1f22">29″ long</text>
+  <circle cx="553" cy="160" r="37.5" fill="#ffffff" stroke="#1d1f22"/><text x="553" y="164" text-anchor="middle" font-size="11">seat</text>
+  <circle cx="782" cy="160" r="37.5" fill="#ffffff" stroke="#1d1f22"/><text x="782" y="164" text-anchor="middle" font-size="11">seat</text>
+  <!-- walkway dim -->
+  <line x1="667.5" y1="230" x2="667.5" y2="340" stroke="#2c7a4b" stroke-width="1.5"/>
+  <path d="M661,236 L667.5,228 L674,236 M661,334 L667.5,342 L674,334" stroke="#2c7a4b" stroke-width="1.5" fill="none"/>
+  <text x="676" y="290" font-size="12" font-weight="700" fill="#2c7a4b">23½″ walkway</text>
+  <!-- seat zone dim -->
+  <line x1="503" y1="240" x2="605" y2="240" stroke="#5d6268"/>
+  <text x="554" y="256" text-anchor="middle" font-size="11" fill="#5d6268">20½″ seat zone</text>
+  <!-- entry path -->
+  <path d="M667.5,420 V350" stroke="#2c7a4b" stroke-width="2.5" fill="none" stroke-dasharray="6 4"/>
+
+  <!-- footer -->
+  <text x="40" y="395" font-size="11" fill="#5d6268">Inside: 66½″ wide × 52½″ deep</text>
+  <text x="480" y="395" font-size="11" fill="#5d6268">Leftover piece: ~21″ × 25″ (use as a shelf)</text>
+</svg>
